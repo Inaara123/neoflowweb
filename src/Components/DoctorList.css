@@ -1,34 +1,36 @@
 /* DoctorList.css */
-
-/* Mobile Styles */
-@media screen and (max-width: 767px) {
-    .doctor-list {
-      padding: 8px;
+@media screen and (max-width: 768px) {
+    .doctor-card {
+      flex-direction: column !important;
+      align-items: flex-start !important;
     }
   
-    .doctor-card {
-      padding: 12px;
+    .doctor-info {
+      margin-bottom: 16px;
     }
   
     .patient-section {
+      width: 100%;
       flex-direction: column;
-    }
-  }
-  
-  /* Desktop Styles */
-  @media screen and (min-width: 768px) {
-    .doctor-list {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 24px;
+      align-items: flex-start !important;
     }
   
-    .doctor-card {
-      height: 100%;
-    }
-  
-    .patient-section {
-      flex: 1;
+    .midarea {
+      width: 100%;
       justify-content: space-between;
+      margin-bottom: 16px;
+    }
+  
+    .add-button {
+      margin-left: 0 !important;
+    }
+  
+    .lastsection {
+      width: 100%;
+      align-items: flex-start !important;
+    }
+  
+    .add-patient-button {
+      width: 100%;
     }
   }
