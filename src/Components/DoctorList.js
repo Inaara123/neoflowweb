@@ -1,11 +1,11 @@
 // DoctorList.js
-import React, { useState, useMemo } from 'react';
+import React, { useState,useMemo } from 'react';
 import { useQueue } from '../QueueContext';
 import AddPatient from './AddPatient';
 import { ref, update } from 'firebase/database';
-import './DoctorList.css';
-import { database, auth } from '../firebase';
-
+import { database } from '../firebase';
+import './DoctorList.css'
+import { auth } from '../firebase'
 const styles = {
   doctorList: {
     display: 'flex',
@@ -17,7 +17,8 @@ const styles = {
   },
   doctorCard: {
     display: 'flex',
-    flexDirection: 'column',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     borderRadius: '10px',
     padding: '16px',
     backgroundColor: '#3865ad',
@@ -26,7 +27,7 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: '16px',
-    marginBottom: '16px',
+    flex: '1',
   },
   avatar: {
     width: '50px',
@@ -37,7 +38,6 @@ const styles = {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    flexShrink: 0,
   },
   avatarIcon: {
     width: '40px',
@@ -60,27 +60,36 @@ const styles = {
   },
   patientSection: {
     display: 'flex',
-    flexDirection: 'column',
+    alignItems: 'center',
     gap: '16px',
+    flex: '2',
   },
   midarea: {
     display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: 'row',
+    padding: '10px'
   },
   midsection: {
     display: 'flex',
     flexDirection: 'column',
+    alignItems: 'center',
+    flex: '1',
+  },
+  lastsection: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-end',
+    flex: '1',
   },
   currentPatient: {
     color: '#FFFFFF',
     margin: '0',
-    fontSize: '14px',
+    fontSize: '12px',
   },
   noPatients: {
     color: '#B0B0B0',
     margin: '4px 0 0',
-    fontSize: '14px',
+    fontSize: '12px',
   },
   addButton: {
     backgroundColor: '#FF69B4',
@@ -92,6 +101,8 @@ const styles = {
     fontSize: '20px',
     fontWeight: 'bold',
     cursor: 'pointer',
+    marginBottom: '8px',
+    marginLeft: '20px',
     transition: 'background-color 0.3s ease',
   },
   addButtonHover: {
@@ -101,78 +112,81 @@ const styles = {
     backgroundColor: '#4169E1',
     color: '#FFFFFF',
     border: 'none',
-    padding: '8px 16px',
+    padding: '6px 12px',
     borderRadius: '5px',
-    fontSize: '14px',
+    fontSize: '12px',
     cursor: 'pointer',
     transition: 'background-color 0.3s ease',
-    alignSelf: 'flex-start',
   },
   addPatientButtonHover: {
     backgroundColor: '#0000CD',
   },
 };
-
 const getCurrentPatients = (queueData) => {
-  const currentPatients = {};
-  
-  if (queueData && Array.isArray(queueData)) {
-    queueData.forEach(patient => {
-      if (patient.waitno === 0) {
-        currentPatients[patient.docid] = patient.name;
-      }
-    });
-  }
-  
-  return currentPatients;
-};
-
-function updateQueue(currentList, doctorName) {
-  const filteredList = currentList.filter(
-    patient => !(patient.docname === doctorName && patient.waitno === 0)
-  );
-
-  let newSno = 1;
-  const updatedList = filteredList.map(patient => {
-    if (patient.docname === doctorName) {
-      return { ...patient, sno: newSno.toString(), waitno: patient.waitno - 1 };
+    const currentPatients = {};
+    
+    if (queueData && Array.isArray(queueData)) {
+      queueData.forEach(patient => {
+        if (patient.waitno === 0) {
+          currentPatients[patient.docid] = patient.name;
+        }
+      });
     }
-    return { ...patient, sno: newSno.toString() };
-  });
-
-  return updatedList;
-}
-
-function transformData(data) {
-  return data.reduce((acc, item, index) => {
-    const { sno, ...rest } = item;
     
-    acc[index + 1] = {
-      ...rest,
-      sno: (index + 1).toString()
-    };
-    
-    return acc;
-  }, {});
-}
-
-const onPlusClick = async (currentList, doctorName) => {
-  const updatedRemovedList = updateQueue(currentList, doctorName);
-  console.log("The updated list is:", updatedRemovedList);
-  try {
-    await update(ref(database, 'users/' + auth.currentUser.uid), { realtime: JSON.stringify(transformData(updatedRemovedList))})
-  } catch {
-    console.log('error found while updating + to firebase database')
+    return currentPatients;
+  };
+  function updateQueue(currentList, doctorName) {
+    // Step 1: Remove the patient with waitno 0 for the specified doctor
+    const filteredList = currentList.filter(
+      patient => !(patient.docname === doctorName && patient.waitno === 0)
+    );
+  
+    // Step 2: Update sno and waitno of the remaining patients
+    let newSno = 1;
+    const updatedList = filteredList.map(patient => {
+      if (patient.docname === doctorName) {
+        return { ...patient, sno: newSno.toString(), waitno: patient.waitno - 1 };
+      }
+      return { ...patient, sno: newSno.toString() };
+    });
+  
+    return updatedList;
   }
-  return updatedRemovedList;
-};
+  function transformData(data) {
+    return data.reduce((acc, item, index) => {
+      // Create a new object without the 'sno' property
+      const { sno, ...rest } = item;
+      
+      // Use index + 1 as the key, and spread the rest of the properties
+      acc[index + 1] = {
+        ...rest,
+        sno: (index + 1).toString() // Ensure sno is a string and matches the new key
+      };
+      
+      return acc;
+    }, {});
+  }
+
+  const onPlusClick = async (currentList, doctorName) => {
+    const updatedRemovedList = updateQueue(currentList, doctorName);
+    console.log("The updated list is:", updatedRemovedList);
+    try {
+        await update(ref(database, 'users/' + auth.currentUser.uid), { realtime: JSON.stringify(transformData(updatedRemovedList))})
+
+        }catch{
+            console.log('error found while updating + to firebase database')
+        }
+    return updatedRemovedList;
+  };
 
 const DoctorCard = ({ doctor }) => {
+    console.log("this is inside doctor : ",doctor )
   const { data, loading, error } = useQueue();
   const [isAddButtonHovered, setIsAddButtonHovered] = useState(false);
   const [isAddPatientButtonHovered, setIsAddPatientButtonHovered] = useState(false);
   const [showAddPatient, setShowAddPatient] = useState(false);
   const currentPatients = useMemo(() => getCurrentPatients(data), [data]);
+
 
   const handleAddPatient = () => {
     setShowAddPatient(true);
@@ -181,8 +195,9 @@ const DoctorCard = ({ doctor }) => {
   const handleCloseAddPatient = () => {
     setShowAddPatient(false);
   };
-
   const currentPatientName = currentPatients[doctor.doctor_id] || 'No Patients';
+  console.log("the current patient Name is : ",currentPatientName)
+
 
   return (
     <div style={styles.doctorCard}>
@@ -210,31 +225,35 @@ const DoctorCard = ({ doctor }) => {
               ...styles.addButton,
               ...(isAddButtonHovered ? styles.addButtonHover : {})
             }}
-            onClick={() => onPlusClick(data, doctor.name)}
+            onClick={() => onPlusClick(data,doctor.name)}
             onMouseEnter={() => setIsAddButtonHovered(true)}
             onMouseLeave={() => setIsAddButtonHovered(false)}
           >
             +
           </button>
         </div>  
-        <button 
-          style={{
-            ...styles.addPatientButton,
-            ...(isAddPatientButtonHovered ? styles.addPatientButtonHover : {})
-          }}
-          onClick={handleAddPatient}
-          onMouseEnter={() => setIsAddPatientButtonHovered(true)}
-          onMouseLeave={() => setIsAddPatientButtonHovered(false)}
-        >
-          Add Patient
-        </button>
+        <div style={styles.lastsection}>
+          <button 
+            style={{
+              ...styles.addPatientButton,
+              ...(isAddPatientButtonHovered ? styles.addPatientButtonHover : {})
+            }}
+            onClick={handleAddPatient}
+            onMouseEnter={() => setIsAddPatientButtonHovered(true)}
+            onMouseLeave={() => setIsAddPatientButtonHovered(false)}
+          >
+            Add Patient
+          </button>
+        </div>
       </div>
       <AddPatient 
         isOpen={showAddPatient}
         onClose={handleCloseAddPatient}
         docName={doctor.name}
-        docDept={doctor.specialization}
-        docId={doctor.doctor_id}
+        docDept = {doctor.specialization}
+        docId = {doctor.doctor_id}
+      
+       
       />
     </div>
   );
