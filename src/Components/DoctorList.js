@@ -14,6 +14,7 @@ const styles = {
     padding: '16px',
     backgroundColor: 'white',
     minHeight: '100vh',
+    marginTop : '30px'
   },
   doctorCard: {
     display: 'flex',

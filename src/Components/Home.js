@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom';
 import DoctorList from './DoctorList';
 import Shuffle from './Shuffle';
 import SettingsList from './SettingsList'
-import { supabase } from '../supabaseClient';
 import { useDoctor } from '../DoctorContext';
 
 
@@ -19,11 +18,15 @@ const Home = () => {
   const [activeTab, setActiveTab] = useState('home');
  
   const handleSignOut = async () => {
-    try {
-      await signOut(auth);
-      navigate('/', { replace: true }); // Redirect to login page after sign out
-    } catch (error) {
-      console.error('Sign out error', error);
+    const confirmSignOut = window.confirm("Are you sure you want to sign out?");
+    
+    if (confirmSignOut) {
+      try {
+        await signOut(auth);
+        navigate('/', { replace: true }); // Redirect to login page after sign out
+      } catch (error) {
+        console.error('Sign out error', error);
+      }
     }
   };
 
@@ -39,11 +42,17 @@ const Home = () => {
       left: 0,
       width: '100%',
       backgroundColor: '#3865ad',
-      padding: '10px 0',
+      //padding: '10px 0',
       zIndex: 1000,
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
+    },
+    logo: {
+      height: '90px', 
+      width : '140px',// Adjust as needed
+      marginLeft: '30px',
+     // Adjust as needed
     },
     nav: {
       display: 'flex',
@@ -105,6 +114,8 @@ const Home = () => {
   return (
     <div style={styles.container}>
       <div style={styles.stickyBar}>
+      <img src="/nobglogo.png" alt="Logo" style={styles.logo} />
+
         <nav style={styles.nav}>
           <span
             onClick={() => setActiveTab('home')}

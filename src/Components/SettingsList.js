@@ -460,7 +460,7 @@ const SettingsList = () => {
     
     return (
         <div style={styles.container}>
-            <h1 style={styles.title}>SettingsList</h1>
+    
             <button 
               style={{
                 ...styles.addButton,

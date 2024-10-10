@@ -279,7 +279,6 @@ const Shuffle = () => {
 
     return (
         <div style={styles.container}>
-            <h2>Drag and Drop Example</h2>
             <div ref={containerRef} style={styles.list}>
                 <DraggableList
                     itemKey="sno"
