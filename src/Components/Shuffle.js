@@ -4,6 +4,7 @@ import DraggableList from 'react-draggable-list';
 import { ref, update } from 'firebase/database';
 import { database, auth } from '../firebase';
 import { useQueue } from '../QueueContext';
+import './Shuffle.css'
 
 const ConfirmationPopup = ({ isOpen, onConfirm, onCancel, message }) => {
   if (!isOpen) return null;
