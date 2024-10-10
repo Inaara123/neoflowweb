@@ -1,36 +1,46 @@
 /* Shuffle.mobile.css */
 @media (max-width: 768px) {
-    .shuffle-container {
+    /* Target the main container */
+    div[style*="max-width: 300px"] {
       max-width: 100% !important;
     }
   
-    .shuffle-item {
+    /* Target the item container */
+    div[style*="width: 400px"] {
       width: 100% !important;
       margin-left: 0 !important;
+    }
+  
+    /* Target the item itself */
+    div[style*="display: flex"][style*="justify-content: space-between"] {
       flex-direction: column !important;
       align-items: flex-start !important;
     }
   
-    .shuffle-item-left-section {
+    /* Target the left section */
+    div[style*="display: flex"][style*="justify-content: space-between"] > div:first-child {
       margin-bottom: 10px !important;
     }
   
-    .shuffle-item-right-section {
+    /* Target the right section */
+    div[style*="display: flex"][style*="justify-content: space-between"] > div:nth-child(2) {
       margin-left: 0 !important;
       margin-bottom: 10px !important;
     }
   
-    .shuffle-item-delete-section {
+    /* Target the delete section */
+    div[style*="display: flex"][style*="justify-content: space-between"] > div:last-child {
       margin-left: 0 !important;
       align-self: flex-end !important;
     }
   
-    .shuffle-item:hover {
+    /* Disable hover effects on mobile */
+    div[style*="display: flex"][style*="justify-content: space-between"]:hover {
       transform: none !important;
       box-shadow: none !important;
     }
   
-    .shuffle-delete-button:hover {
+    button[style*="width: 50px"][style*="height: 50px"]:hover {
       transform: none !important;
     }
   }
