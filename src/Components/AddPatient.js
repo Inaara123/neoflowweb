@@ -4,7 +4,6 @@ import {auth} from '../firebase';
 import { ref, update } from 'firebase/database';
 import { database } from '../firebase';
 import { useQueue } from '../QueueContext';
-import { wait } from '@testing-library/user-event/dist/utils';
 
 const styles = {
   popup: {
