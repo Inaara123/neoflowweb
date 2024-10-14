@@ -22,6 +22,14 @@ const Login = () => {
       navigate('/home', { replace: true });
     }
   }, [navigate]);
+  useEffect(() => {
+    if (!auth.currentUser) {
+      setEmail('');
+      setPassword('');
+      setConfirmPassword('');
+      // Reset any other state as necessary
+    }
+  }, [auth.currentUser]);
 
   const handleLogin = async () => {
     setLoading(true);
