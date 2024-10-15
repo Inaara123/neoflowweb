@@ -348,9 +348,6 @@ const AddDoctorForm = ({ onClose, addDoctor }) => {
     contact_number: ''
   });
 
-  const handleInputChange = (e) => {
-    setNewDoctor({ ...newDoctor, [e.target.name]: e.target.value });
-  };
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -408,11 +405,29 @@ const AddDoctorForm = ({ onClose, addDoctor }) => {
           throw newDoctorError;
         }
       }
+  
+      const { data, error } = await supabase
+        .from('doctors')
+        .select('*')
+        .eq('hospital_id', auth.currentUser.uid)
+        .eq('name', newDoctor.name)
+        .order('created_at', { ascending: false })
+        .limit(1);
+  
+      if (error) {
+        throw error;
+      }
+  
+      addDoctor(data[0]);
+      console.log("The new doctor updated in Supabase is:", data[0]);
+      onClose();
     } catch (error) {
-      console.error('Error:', error);
-      // Handle the error (e.g., show a message to the user)
+      console.error('Error adding doctor:', error);
+      // Handle error (e.g., show an error message to the user)
     }
   };
+
+  
 
   // const handleSubmit = async(e) => {
   //   e.preventDefault();
@@ -436,26 +451,7 @@ const AddDoctorForm = ({ onClose, addDoctor }) => {
   //       }
   
         // Fetch the newly added doctor to get the complete data including the ID
-        const { data, error } = await supabase
-          .from('doctors')
-          .select('*')
-          .eq('hospital_id', auth.currentUser.uid)
-          .eq('name', newDoctor.name)
-          .order('created_at', { ascending: false })
-          .limit(1);
-  
-        if (error) {
-          throw error;
-        }
-  
-        addDoctor(data[0]);
-        console.log("the new doctor updated in supabase is : ",data[0])
-        onClose();
-      } catch (error) {
-        console.error('Error adding doctor:', error);
-        // Handle error (e.g., show an error message to the user)
-      }
-    };
+
 //     addDoctor(newDoctor);
 //     onClose();
 //   };
