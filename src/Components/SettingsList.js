@@ -348,110 +348,89 @@ const AddDoctorForm = ({ onClose, addDoctor }) => {
     contact_number: ''
   });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const { error: newDoctorError } = await supabase
-        .from('doctors')
-        .insert([
-          {
-            hospital_id: auth.currentUser.uid,
-            name: newDoctor.name,
-            specialization: newDoctor.specialization,
-            contact_number: newDoctor.contact_number,
-            email: newDoctor.email,
-            gender: newDoctor.gender,
-            created_at: new Date().toISOString(),
-          },
-        ]);
-  
-      if (newDoctorError) {
-        if (newDoctorError.code === '23503' && newDoctorError.details.includes('Key (hospital_id)')) {
-          // Insert the hospital into the hospitals table
-          const { error: newHospitalError } = await supabase
-            .from('hospitals')
-            .insert([
-              {
-                id: auth.currentUser.uid,
-                // Add other necessary fields for the hospital here
-                name: 'New Hospital', // Example field
-                location: 'Unknown',  // Example field
-              },
-            ]);
-  
-          if (newHospitalError) {
-            throw newHospitalError;
-          }
-  
-          // Retry inserting the doctor
-          const { error: retryDoctorError } = await supabase
-            .from('doctors')
-            .insert([
-              {
-                hospital_id: auth.currentUser.uid,
-                name: newDoctor.name,
-                specialization: newDoctor.specialization,
-                contact_number: newDoctor.contact_number,
-                email: newDoctor.email,
-                gender: newDoctor.gender,
-                created_at: new Date().toISOString(),
-              },
-            ]);
-  
-          if (retryDoctorError) {
-            throw retryDoctorError;
-          }
-        } else {
-          throw newDoctorError;
-        }
-      }
-  
-      const { data, error } = await supabase
-        .from('doctors')
-        .select('*')
-        .eq('hospital_id', auth.currentUser.uid)
-        .eq('name', newDoctor.name)
-        .order('created_at', { ascending: false })
-        .limit(1);
-  
-      if (error) {
-        throw error;
-      }
-  
-      addDoctor(data[0]);
-      console.log("The new doctor updated in Supabase is:", data[0]);
-      onClose();
-    } catch (error) {
-      console.error('Error adding doctor:', error);
-      // Handle error (e.g., show an error message to the user)
-    }
+  const handleInputChange = (e) => {
+    setNewDoctor({ ...newDoctor, [e.target.name]: e.target.value });
   };
 
+  const handleSubmit = async(e) => {
+    e.preventDefault();
+    try {
+        const { error: newDoctorError } = await supabase
+          .from('doctors')
+          .insert([
+            {
+              hospital_id: auth.currentUser.uid,
+              name: newDoctor.name,
+              specialization: newDoctor.specialization,
+              contact_number: newDoctor.contact_number,
+              email: newDoctor.email,
+              gender: newDoctor.gender,
+              created_at: new Date().toISOString(),
+            },
+          ]);
   
-
-  // const handleSubmit = async(e) => {
-  //   e.preventDefault();
-  //   try {
-  //       const { error: newDoctorError } = await supabase
-  //         .from('doctors')
-  //         .insert([
-  //           {
-  //             hospital_id: auth.currentUser.uid,
-  //             name: newDoctor.name,
-  //             specialization: newDoctor.specialization,
-  //             contact_number: newDoctor.contact_number,
-  //             email: newDoctor.email,
-  //             gender: newDoctor.gender,
-  //             created_at: new Date().toISOString(),
-  //           },
-  //         ]);
-  
-  //       if (newDoctorError) {
-  //         throw newDoctorError;
-  //       }
+          if (newDoctorError) {
+            if (newDoctorError.code === '23503' && newDoctorError.details.includes('Key (hospital_id)')) {
+              // Insert the hospital into the hospitals table
+              console.log("new hospital to be added here")
+              const { error: newHospitalError } = await supabase
+                .from('hospitals')
+                .insert([
+                  {
+                    hospital_id: auth.currentUser.uid,
+                    // Add other necessary fields for the hospital here
+  // Example field
+                  },
+                ]);
+      
+              if (newHospitalError) {
+                throw newHospitalError;
+              }
+      
+              // Retry inserting the doctor
+              const { error: retryDoctorError } = await supabase
+                .from('doctors')
+                .insert([
+                  {
+                    hospital_id: auth.currentUser.uid,
+                    name: newDoctor.name,
+                    specialization: newDoctor.specialization,
+                    contact_number: newDoctor.contact_number,
+                    email: newDoctor.email,
+                    gender: newDoctor.gender,
+                    created_at: new Date().toISOString(),
+                  },
+                ]);
+      
+              if (retryDoctorError) {
+                throw retryDoctorError;
+              }
+            } else {
+              throw newDoctorError;
+            }
+          }
   
         // Fetch the newly added doctor to get the complete data including the ID
-
+        const { data, error } = await supabase
+          .from('doctors')
+          .select('*')
+          .eq('hospital_id', auth.currentUser.uid)
+          .eq('name', newDoctor.name)
+          .order('created_at', { ascending: false })
+          .limit(1);
+  
+        if (error) {
+          throw error;
+        }
+  
+        addDoctor(data[0]);
+        console.log("the new doctor updated in supabase is : ",data[0])
+        onClose();
+      } catch (error) {
+        console.error('Error adding doctor:', error);
+        // Handle error (e.g., show an error message to the user)
+      }
+    };
 //     addDoctor(newDoctor);
 //     onClose();
 //   };

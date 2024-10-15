@@ -117,6 +117,7 @@ const AddPatient = ({ isOpen, onClose, docName,docDept,docId}) => {
   };
 
   const handleSubmit = async (e) => {
+    console.log("i am trying to add a patient")
     e.preventDefault();
     if (formData.name.trim() === '') {
       alert('Patient Name is required');
@@ -134,7 +135,10 @@ const AddPatient = ({ isOpen, onClose, docName,docDept,docId}) => {
           };
         if (data.length ===0) {
             console.log("first patient being entered")
+            console.log("the uid is : ",auth.currentUser.uid)
+            console.log("the master element is : ",masterelement)
             await update(ref(database, 'users/' + auth.currentUser.uid), { realtime: JSON.stringify(transformData([masterelement])) });
+
 
 
         }else{
