@@ -178,13 +178,14 @@ function AppContent() {
 
 function App() {
   return (
+    <BrowserRouter>
     <DoctorProvider>
       <QueueProvider>
-        <BrowserRouter>
           <AppContent />
-        </BrowserRouter>
       </QueueProvider>
     </DoctorProvider>
+    </BrowserRouter>
+
   );
 }
 
