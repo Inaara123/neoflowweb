@@ -50,7 +50,7 @@ const Login = () => {
           throw new Error(hospitalIdError.message);
         } else {
           console.log('UID does not exist in Supabase. Navigating to Settings');
-          navigate('/settings', { 
+          navigate('/home', { 
             state: { 
               uid: user.uid,
               email: user.email,

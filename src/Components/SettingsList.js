@@ -351,27 +351,89 @@ const AddDoctorForm = ({ onClose, addDoctor }) => {
   const handleInputChange = (e) => {
     setNewDoctor({ ...newDoctor, [e.target.name]: e.target.value });
   };
-
-  const handleSubmit = async(e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-        const { error: newDoctorError } = await supabase
-          .from('doctors')
-          .insert([
-            {
-              hospital_id: auth.currentUser.uid,
-              name: newDoctor.name,
-              specialization: newDoctor.specialization,
-              contact_number: newDoctor.contact_number,
-              email: newDoctor.email,
-              gender: newDoctor.gender,
-              created_at: new Date().toISOString(),
-            },
-          ]);
+      const { error: newDoctorError } = await supabase
+        .from('doctors')
+        .insert([
+          {
+            hospital_id: auth.currentUser.uid,
+            name: newDoctor.name,
+            specialization: newDoctor.specialization,
+            contact_number: newDoctor.contact_number,
+            email: newDoctor.email,
+            gender: newDoctor.gender,
+            created_at: new Date().toISOString(),
+          },
+        ]);
   
-        if (newDoctorError) {
+      if (newDoctorError) {
+        if (newDoctorError.code === '23503' && newDoctorError.details.includes('Key (hospital_id)')) {
+          // Insert the hospital into the hospitals table
+          const { error: newHospitalError } = await supabase
+            .from('hospitals')
+            .insert([
+              {
+                id: auth.currentUser.uid,
+                // Add other necessary fields for the hospital here
+                name: 'New Hospital', // Example field
+                location: 'Unknown',  // Example field
+              },
+            ]);
+  
+          if (newHospitalError) {
+            throw newHospitalError;
+          }
+  
+          // Retry inserting the doctor
+          const { error: retryDoctorError } = await supabase
+            .from('doctors')
+            .insert([
+              {
+                hospital_id: auth.currentUser.uid,
+                name: newDoctor.name,
+                specialization: newDoctor.specialization,
+                contact_number: newDoctor.contact_number,
+                email: newDoctor.email,
+                gender: newDoctor.gender,
+                created_at: new Date().toISOString(),
+              },
+            ]);
+  
+          if (retryDoctorError) {
+            throw retryDoctorError;
+          }
+        } else {
           throw newDoctorError;
         }
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      // Handle the error (e.g., show a message to the user)
+    }
+  };
+
+  // const handleSubmit = async(e) => {
+  //   e.preventDefault();
+  //   try {
+  //       const { error: newDoctorError } = await supabase
+  //         .from('doctors')
+  //         .insert([
+  //           {
+  //             hospital_id: auth.currentUser.uid,
+  //             name: newDoctor.name,
+  //             specialization: newDoctor.specialization,
+  //             contact_number: newDoctor.contact_number,
+  //             email: newDoctor.email,
+  //             gender: newDoctor.gender,
+  //             created_at: new Date().toISOString(),
+  //           },
+  //         ]);
+  
+  //       if (newDoctorError) {
+  //         throw newDoctorError;
+  //       }
   
         // Fetch the newly added doctor to get the complete data including the ID
         const { data, error } = await supabase
