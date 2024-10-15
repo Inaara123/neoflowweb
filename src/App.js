@@ -79,6 +79,7 @@ function AppContent() {
 
         return { hasHospitalDetails: hasDetails, isPaidUser: isPaid };
       } catch (error) {
+        console.log("error is in here app.js")
         console.error('Error checking user status:', error);
         return { hasHospitalDetails: false, isPaidUser: false };
       }
