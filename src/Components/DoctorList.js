@@ -1,11 +1,12 @@
 // DoctorList.js
-import React, { useState,useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQueue } from '../QueueContext';
 import AddPatient from './AddPatient';
 import { ref, update } from 'firebase/database';
 import { database } from '../firebase';
 import './DoctorList.css'
 import { auth } from '../firebase'
+
 const styles = {
   doctorList: {
     display: 'flex',
@@ -14,7 +15,7 @@ const styles = {
     padding: '16px',
     backgroundColor: 'white',
     minHeight: '100vh',
-    marginTop : '30px'
+    marginTop: '30px'
   },
   doctorCard: {
     display: 'flex',
@@ -102,7 +103,7 @@ const styles = {
     fontSize: '20px',
     fontWeight: 'bold',
     cursor: 'pointer',
-    marginBottom: '8px',
+    marginBottom: '18px',
     marginLeft: '20px',
     transition: 'background-color 0.3s ease',
   },
@@ -123,71 +124,72 @@ const styles = {
     backgroundColor: '#0000CD',
   },
 };
+
 const getCurrentPatients = (queueData) => {
-    const currentPatients = {};
-    
-    if (queueData && Array.isArray(queueData)) {
-      queueData.forEach(patient => {
-        if (patient.waitno === 0) {
-          currentPatients[patient.docid] = patient.name;
-        }
-      });
-    }
-    
-    return currentPatients;
-  };
-  function updateQueue(currentList, doctorName) {
-    // Step 1: Remove the patient with waitno 0 for the specified doctor
-    const filteredList = currentList.filter(
-      patient => !(patient.docname === doctorName && patient.waitno === 0)
-    );
+  const currentPatients = {};
   
-    // Step 2: Update sno and waitno of the remaining patients
-    let newSno = 1;
-    const updatedList = filteredList.map(patient => {
-      if (patient.docname === doctorName) {
-        return { ...patient, sno: newSno.toString(), waitno: patient.waitno - 1 };
+  if (queueData && Array.isArray(queueData)) {
+    queueData.forEach(patient => {
+      if (patient.waitno === 0) {
+        currentPatients[patient.docid] = patient.name;
       }
-      return { ...patient, sno: newSno.toString() };
     });
+  }
   
-    return updatedList;
-  }
-  function transformData(data) {
-    return data.reduce((acc, item, index) => {
-      // Create a new object without the 'sno' property
-      const { sno, ...rest } = item;
-      
-      // Use index + 1 as the key, and spread the rest of the properties
-      acc[index + 1] = {
-        ...rest,
-        sno: (index + 1).toString() // Ensure sno is a string and matches the new key
-      };
-      
-      return acc;
-    }, {});
-  }
+  return currentPatients;
+};
 
-  const onPlusClick = async (currentList, doctorName) => {
-    const updatedRemovedList = updateQueue(currentList, doctorName);
-    console.log("The updated list is:", updatedRemovedList);
-    try {
-        await update(ref(database, 'users/' + auth.currentUser.uid), { realtime: JSON.stringify(transformData(updatedRemovedList))})
+function updateQueue(currentList, doctorName) {
+  // Step 1: Remove the patient with waitno 0 for the specified doctor
+  const filteredList = currentList.filter(
+    patient => !(patient.docname === doctorName && patient.waitno === 0)
+  );
 
-        }catch{
-            console.log('error found while updating + to firebase database')
-        }
-    return updatedRemovedList;
-  };
+  // Step 2: Update sno and waitno of the remaining patients
+  let newSno = 1;
+  const updatedList = filteredList.map(patient => {
+    if (patient.docname === doctorName) {
+      return { ...patient, sno: newSno.toString(), waitno: patient.waitno - 1 };
+    }
+    return { ...patient, sno: newSno.toString() };
+  });
+
+  return updatedList;
+}
+
+function transformData(data) {
+  return data.reduce((acc, item, index) => {
+    // Create a new object without the 'sno' property
+    const { sno, ...rest } = item;
+    
+    // Use index + 1 as the key, and spread the rest of the properties
+    acc[index + 1] = {
+      ...rest,
+      sno: (index + 1).toString() // Ensure sno is a string and matches the new key
+    };
+    
+    return acc;
+  }, {});
+}
+
+const onPlusClick = async (currentList, doctorName) => {
+  const updatedRemovedList = updateQueue(currentList, doctorName);
+  console.log("The updated list is:", updatedRemovedList);
+  try {
+    await update(ref(database, 'users/' + auth.currentUser.uid), { realtime: JSON.stringify(transformData(updatedRemovedList))})
+  } catch {
+    console.log('error found while updating + to firebase database')
+  }
+  return updatedRemovedList;
+};
 
 const DoctorCard = ({ doctor }) => {
-    console.log("this is inside doctor : ",doctor )
+  console.log("this is inside doctor : ", doctor)
   const { data, loading, error } = useQueue();
   const [isAddButtonHovered, setIsAddButtonHovered] = useState(false);
   const [isAddPatientButtonHovered, setIsAddPatientButtonHovered] = useState(false);
   const [showAddPatient, setShowAddPatient] = useState(false);
   const currentPatients = useMemo(() => getCurrentPatients(data), [data]);
-
 
   const handleAddPatient = () => {
     setShowAddPatient(true);
@@ -197,44 +199,46 @@ const DoctorCard = ({ doctor }) => {
     setShowAddPatient(false);
   };
   const currentPatientName = currentPatients[doctor.doctor_id] || 'No Patients';
-  console.log("the current patient Name is : ",currentPatientName)
-
+  console.log("the current patient Name is : ", currentPatientName)
 
   return (
-    <div style={styles.doctorCard}>
-      <div style={styles.doctorInfo}>
-        <div style={styles.avatar}>
-          <svg viewBox="0 0 24 24" fill="currentColor" style={styles.avatarIcon}>
+    <div className="doctorCard" style={styles.doctorCard}>
+      <div className="doctorInfo" style={styles.doctorInfo}>
+        <div className="avatar" style={styles.avatar}>
+          <svg viewBox="0 0 24 24" fill="currentColor" className="avatarIcon" style={styles.avatarIcon}>
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
           </svg>
         </div>
-        <div style={styles.doctorDetails}>
-          <h3 style={styles.doctorName}>{doctor.name}</h3>
-          <p style={styles.doctorSpecialization}>{doctor.specialization}</p>
+        <div className="doctorDetails" style={styles.doctorDetails}>
+          <h3 className="doctorName" style={styles.doctorName}>{doctor.name}</h3>
+          <p className="doctorSpecialization" style={styles.doctorSpecialization}>{doctor.specialization}</p>
         </div>
       </div>
-      <div style={styles.patientSection}>
-        <div style={styles.midarea}>
-          <div style={styles.midsection}>
-            <p style={styles.currentPatient}>Current Patient</p>
-            <p style={currentPatients[doctor.doctor_id] ? styles.currentPatient : styles.noPatients}>
+      <div className="patientSection" style={styles.patientSection}>
+        <div className="midarea" style={styles.midarea}>
+          <div className="midsection" style={styles.midsection}>
+            <p className="currentPatient" style={styles.currentPatient}>Current Patient</p>
+            <p className={currentPatients[doctor.doctor_id] ? "currentPatient" : "noPatients"} 
+               style={currentPatients[doctor.doctor_id] ? styles.currentPatient : styles.noPatients}>
               {currentPatientName}
             </p>
           </div>
           <button 
+            className="addButton"
             style={{
               ...styles.addButton,
               ...(isAddButtonHovered ? styles.addButtonHover : {})
             }}
-            onClick={() => onPlusClick(data,doctor.name)}
+            onClick={() => onPlusClick(data, doctor.name)}
             onMouseEnter={() => setIsAddButtonHovered(true)}
             onMouseLeave={() => setIsAddButtonHovered(false)}
           >
             +
           </button>
         </div>  
-        <div style={styles.lastsection}>
+        <div className="lastsection" style={styles.lastsection}>
           <button 
+            className="addPatientButton"
             style={{
               ...styles.addPatientButton,
               ...(isAddPatientButtonHovered ? styles.addPatientButtonHover : {})
@@ -251,10 +255,8 @@ const DoctorCard = ({ doctor }) => {
         isOpen={showAddPatient}
         onClose={handleCloseAddPatient}
         docName={doctor.name}
-        docDept = {doctor.specialization}
-        docId = {doctor.doctor_id}
-      
-       
+        docDept={doctor.specialization}
+        docId={doctor.doctor_id}
       />
     </div>
   );
@@ -262,7 +264,7 @@ const DoctorCard = ({ doctor }) => {
 
 const DoctorList = ({ doctors, onAddPatient }) => {
   return (
-    <div style={styles.doctorList}>
+    <div className="doctorList" style={styles.doctorList}>
       {doctors.map(doctor => (
         <DoctorCard key={doctor.id} doctor={doctor} onAddPatient={onAddPatient} />
       ))}

@@ -8,7 +8,7 @@ import { useQueue } from '../QueueContext';
 const styles = {
   popup: {
     position: 'fixed',
-    top: '50%',
+    top: '65%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
     backgroundColor: 'white',
@@ -59,6 +59,11 @@ const styles = {
     fontSize: '18px',
     cursor: 'pointer',
   },
+  pophead : {
+    fontSize : '12px',
+    backgroundColor : "3865ad",
+    
+  }
 };
 
 const initialFormData = {
@@ -163,6 +168,7 @@ const AddPatient = ({ isOpen, onClose, docName,docDept,docId}) => {
       <div style={styles.popup}>
         <button style={styles.closeButton} onClick={onClose}>×</button>
         <form style={styles.form} onSubmit={handleSubmit}>
+          <h1 style={styles.pophead}>Add Patient for {docName}</h1>
           <input
             style={styles.input}
             type="text"

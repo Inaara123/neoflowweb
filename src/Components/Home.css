@@ -1,0 +1,59 @@
+/* Mobile styles */
+@media screen and (max-width: 768px) {
+    .container {
+      padding-top: 120px;
+    }
+  
+    .stickyBar {
+      position: relative;
+      flex-direction: column;
+      height: auto;
+      padding: 10px 0;
+    }
+  
+    .logo {
+      height: 60px;
+      width: 93px;
+      margin: 0 auto 10px;
+    }
+  
+    .nav {
+      flex-direction: row;
+      width: 100%;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+  
+    .link {
+      width: 33.33%;
+      text-align: center;
+      padding: 10px 0;
+      margin-bottom: 5px;
+      box-sizing: border-box;
+    }
+  
+    .activeLink {
+      background-color: #2a4d82;
+      border-radius: 0;
+    }
+  
+    .signout {
+      position: absolute;
+      top: 30px;
+      right: 2px;
+      width: auto;
+      margin: 0;
+      padding: 5px 10px;
+      font-size: 14px;
+    }
+  
+    .content {
+      padding: 10px;
+    }
+  
+    .emptyMessage {
+      font-size: 16px;
+      margin-top: 30px;
+      padding: 15px;
+    }
+  }

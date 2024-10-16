@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useDoctor } from '../DoctorContext';
 import { supabase } from '../supabaseClient';
 import { auth } from '../firebase';
-
+import './SettingsList.css'
 const styles = {
   container: {
     padding: '20px',
@@ -256,10 +256,10 @@ const DoctorCard = ({ doctor, deleteDoctor, updateDoctor }) => {
   };
 
   return (
-    <div style={styles.doctorCard}>
-      <div style={styles.doctorInfo}>
-        <h3 style={styles.doctorName}>{doctor.name}</h3>
-        <p style={styles.doctorSpecialization}>{doctor.specialization}</p>
+    <div style={styles.doctorCard} className="doctorCard">
+      <div style={styles.doctorInfo} className="doctorInfo">
+        <h3 style={styles.doctorName} className="doctorName">{doctor.name}</h3>
+        <p style={styles.doctorSpecialization} className="doctorSpecialization">{doctor.specialization}</p>
       </div>
       <button 
         style={{
@@ -267,6 +267,7 @@ const DoctorCard = ({ doctor, deleteDoctor, updateDoctor }) => {
           ...styles.deleteButton, 
           ...(isDeleteHovered ? styles.buttonHover : {})
         }}
+        className="button deleteButton"
         onClick={handleDeleteClick}
         onMouseEnter={() => setIsDeleteHovered(true)}
         onMouseLeave={() => setIsDeleteHovered(false)}
@@ -279,6 +280,7 @@ const DoctorCard = ({ doctor, deleteDoctor, updateDoctor }) => {
           ...styles.modifyButton, 
           ...(isModifyHovered ? styles.buttonHover : {})
         }}
+        className="button modifyButton"
         onClick={handleModifyClick}
         onMouseEnter={() => setIsModifyHovered(true)}
         onMouseLeave={() => setIsModifyHovered(false)}
@@ -286,20 +288,21 @@ const DoctorCard = ({ doctor, deleteDoctor, updateDoctor }) => {
         Modify
       </button>
       {showConfirmation && (
-        <div style={styles.confirmationPopup}>
-          <p>Are you sure you want to delete  {doctor.name}?</p>
+        <div style={styles.confirmationPopup} className="confirmationPopup">
+          <p>Are you sure you want to delete {doctor.name}?</p>
           <div>
-            <button style={styles.confirmButton} onClick={handleConfirmDelete}>Yes</button>
-            <button style={styles.cancelButton} onClick={handleCancelDelete}>No</button>
+            <button style={styles.confirmButton} className="confirmButton" onClick={handleConfirmDelete}>Yes</button>
+            <button style={styles.cancelButton} className="cancelButton" onClick={handleCancelDelete}>No</button>
           </div>
         </div>
       )}
       {showModifyForm && (
-        <div style={styles.modifyPopup}>
-          <button style={styles.closeButton} onClick={handleCloseModifyForm}>X</button>
-          <form style={styles.form} onSubmit={handleSubmitModify}>
+        <div style={styles.modifyPopup} className="modifyPopup">
+          <button style={styles.closeButton} className="closeButton" onClick={handleCloseModifyForm}>X</button>
+          <form style={styles.form} className="form" onSubmit={handleSubmitModify}>
             <input
               style={styles.input}
+              className="input"
               type="text"
               name="name"
               value={modifiedDoctor.name}
@@ -308,6 +311,7 @@ const DoctorCard = ({ doctor, deleteDoctor, updateDoctor }) => {
             />
             <input
               style={styles.input}
+              className="input"
               type="text"
               name="specialization"
               value={modifiedDoctor.specialization}
@@ -316,6 +320,7 @@ const DoctorCard = ({ doctor, deleteDoctor, updateDoctor }) => {
             />
             <input
               style={styles.input}
+              className="input"
               type="email"
               name="email"
               value={modifiedDoctor.email}
@@ -324,6 +329,7 @@ const DoctorCard = ({ doctor, deleteDoctor, updateDoctor }) => {
             />
             <select
               style={styles.select}
+              className="select"
               name="gender"
               value={modifiedDoctor.gender}
               onChange={handleInputChange}
@@ -331,13 +337,14 @@ const DoctorCard = ({ doctor, deleteDoctor, updateDoctor }) => {
               <option value="male">Male</option>
               <option value="female">Female</option>
             </select>
-            <button style={styles.submitButton} type="submit">Submit</button>
+            <button style={styles.submitButton} className="submitButton" type="submit">Submit</button>
           </form>
         </div>
       )}
     </div>
   );
 };
+
 
 const AddDoctorForm = ({ onClose, addDoctor }) => {
   const [newDoctor, setNewDoctor] = useState({
@@ -435,102 +442,106 @@ const AddDoctorForm = ({ onClose, addDoctor }) => {
 //     onClose();
 //   };
 
-  return (
-    <div style={styles.addPopup}>
-      <button style={styles.closeButton} onClick={onClose}>X</button>
-      <form style={styles.form} onSubmit={handleSubmit}>
-        <input
-          style={styles.input}
-          type="text"
-          name="name"
-          value={newDoctor.name}
-          onChange={handleInputChange}
-          placeholder="Name"
-          required
-        />
-        <input
-          style={styles.input}
-          type="text"
-          name="specialization"
-          value={newDoctor.specialization}
-          onChange={handleInputChange}
-          placeholder="Specialization"
-          required
-        />
-        <input
-          style={styles.input}
-          type="email"
-          name="email"
-          value={newDoctor.email}
-          onChange={handleInputChange}
-          placeholder="Email"
-          required
-        />
-        <select
-          style={styles.select}
-          name="gender"
-          value={newDoctor.gender}
-          onChange={handleInputChange}
-          required
-        >
-          <option value="male">Male</option>
-          <option value="female">Female</option>
-        </select>
-        <button style={styles.submitButton} type="submit">Submit</button>
-      </form>
-    </div>
-  );
+return (
+  <div style={styles.addPopup} className="addPopup">
+    <button style={styles.closeButton} className="closeButton" onClick={onClose}>X</button>
+    <form style={styles.form} className="form" onSubmit={handleSubmit}>
+      <input
+        style={styles.input}
+        className="input"
+        type="text"
+        name="name"
+        value={newDoctor.name}
+        onChange={handleInputChange}
+        placeholder="Name"
+        required
+      />
+      <input
+        style={styles.input}
+        className="input"
+        type="text"
+        name="specialization"
+        value={newDoctor.specialization}
+        onChange={handleInputChange}
+        placeholder="Specialization"
+        required
+      />
+      <input
+        style={styles.input}
+        className="input"
+        type="email"
+        name="email"
+        value={newDoctor.email}
+        onChange={handleInputChange}
+        placeholder="Email"
+        required
+      />
+      <select
+        style={styles.select}
+        className="select"
+        name="gender"
+        value={newDoctor.gender}
+        onChange={handleInputChange}
+        required
+      >
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+      </select>
+      <button style={styles.submitButton} className="submitButton" type="submit">Submit</button>
+    </form>
+  </div>
+);
 };
 
 const SettingsList = () => {
-    const { doctors, deleteDoctor, updateDoctor, addDoctor } = useDoctor();
-    const [showAddForm, setShowAddForm] = useState(false);
-    const [isAddButtonHovered, setIsAddButtonHovered] = useState(false);
+  const { doctors, deleteDoctor, updateDoctor, addDoctor } = useDoctor();
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [isAddButtonHovered, setIsAddButtonHovered] = useState(false);
 
-    const handleAddClick = () => {
-      setShowAddForm(true);
-    };
+  const handleAddClick = () => {
+    setShowAddForm(true);
+  };
 
-    const handleCloseAddForm = () => {
-      setShowAddForm(false);
-    };
-    
-    return (
-        <div style={styles.container}>
-    
-            <button 
-              style={{
-                ...styles.addButton,
-                ...(isAddButtonHovered ? styles.addButtonHover : {})
-              }}
-              onClick={handleAddClick}
-              onMouseEnter={() => setIsAddButtonHovered(true)}
-              onMouseLeave={() => setIsAddButtonHovered(false)}
-            >
-              Add Doctor
-            </button>
-            {doctors.length === 0 ? (
-                <p>Doctors list is empty</p>
-            ) : (
-                <div>
-                    <p>Number of doctors: {doctors.length}</p>
-                    <div style={styles.doctorsList}>
-                        {doctors.map(doctor => (
-                            <DoctorCard 
-                              key={doctor.doctor_id} 
-                              doctor={doctor} 
-                              deleteDoctor={deleteDoctor} 
-                              updateDoctor={updateDoctor}
-                            />
-                        ))}
-                    </div>
-                </div>
-            )}
-            {showAddForm && (
-              <AddDoctorForm onClose={handleCloseAddForm} addDoctor={addDoctor} />
-            )}
-        </div>
-    )
+  const handleCloseAddForm = () => {
+    setShowAddForm(false);
+  };
+  
+  return (
+      <div style={styles.container} className="container">
+          <button 
+            style={{
+              ...styles.addButton,
+              ...(isAddButtonHovered ? styles.addButtonHover : {})
+            }}
+            className="addButtonS"
+            onClick={handleAddClick}
+            onMouseEnter={() => setIsAddButtonHovered(true)}
+            onMouseLeave={() => setIsAddButtonHovered(false)}
+          >
+            Add Doctor
+          </button>
+          {doctors.length === 0 ? (
+              <p>Doctors list is empty</p>
+          ) : (
+              <div>
+                  <p>Number of doctors: {doctors.length}</p>
+                  <div style={styles.doctorsList} className="doctorsList">
+                      {doctors.map(doctor => (
+                          <DoctorCard 
+                            key={doctor.doctor_id} 
+                            doctor={doctor} 
+                            deleteDoctor={deleteDoctor} 
+                            updateDoctor={updateDoctor}
+                          />
+                      ))}
+                  </div>
+              </div>
+          )}
+          {showAddForm && (
+            <AddDoctorForm onClose={handleCloseAddForm} addDoctor={addDoctor} />
+          )}
+      </div>
+  )
 }
 
 export default SettingsList

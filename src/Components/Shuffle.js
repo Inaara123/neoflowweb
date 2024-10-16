@@ -10,7 +10,7 @@ const ConfirmationPopup = ({ isOpen, onConfirm, onCancel, message }) => {
   if (!isOpen) return null;
 
   return (
-    <div style={{
+    <div className="confirmation-popup" style={{
       position: 'fixed',
       top: 0,
       left: 0,
@@ -22,7 +22,7 @@ const ConfirmationPopup = ({ isOpen, onConfirm, onCancel, message }) => {
       justifyContent: 'center',
       zIndex: 1000
     }}>
-      <div style={{
+      <div className="confirmation-content" style={{
         backgroundColor: 'white',
         padding: '20px',
         borderRadius: '5px',
@@ -185,20 +185,22 @@ const Shuffle = () => {
     
         return (
             <div 
+                className="template-item"
                 style={styles.item} 
                 {...dragHandleProps}
                 onMouseEnter={() => setIsItemHovered(true)}
                 onMouseLeave={() => setIsItemHovered(false)}
             >
-                <div style={styles.leftSection}>
-                    <div style={styles.name}>{capitalize(item.name)}</div>
-                    <div style={styles.details}>{capitalize(item.docname)} | {capitalize(item.docdept)}</div>
+                <div className="left-section" style={styles.leftSection}>
+                    <div className="name" style={styles.name}>{capitalize(item.name)}</div>
+                    <div className="details" style={styles.details}>{capitalize(item.docname)} | {capitalize(item.docdept)}</div>
                 </div>
-                <div style={styles.rightSection}>
+                <div className="right-section" style={styles.rightSection}>
                     {getWaitStatus(item.waitno)}
                 </div>
-                <div style={styles.deleteSection}>
+                <div className="delete-section" style={styles.deleteSection}>
                     <button 
+                        className="delete-button"
                         style={styles.deleteButton}
                         onMouseEnter={() => setIsHovered(true)}
                         onMouseLeave={() => setIsHovered(false)}
@@ -278,8 +280,8 @@ const Shuffle = () => {
     }
 
     return (
-        <div style={styles.container}>
-            <div ref={containerRef} style={styles.list}>
+        <div className="shuffle-container" style={styles.container}>
+            <div ref={containerRef} className="shuffle-list" style={styles.list}>
                 <DraggableList
                     itemKey="sno"
                     template={TemplateItem}

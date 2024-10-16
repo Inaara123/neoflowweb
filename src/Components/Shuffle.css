@@ -1,46 +1,63 @@
-/* Shuffle.mobile.css */
-@media (max-width: 768px) {
-    /* Target the main container */
-    div[style*="max-width: 300px"] {
-      max-width: 100% !important;
-    }
-  
-    /* Target the item container */
-    div[style*="width: 400px"] {
-      width: 100% !important;
-      margin-left: 0 !important;
-    }
-  
-    /* Target the item itself */
-    div[style*="display: flex"][style*="justify-content: space-between"] {
-      flex-direction: column !important;
-      align-items: flex-start !important;
-    }
-  
-    /* Target the left section */
-    div[style*="display: flex"][style*="justify-content: space-between"] > div:first-child {
-      margin-bottom: 10px !important;
-    }
-  
-    /* Target the right section */
-    div[style*="display: flex"][style*="justify-content: space-between"] > div:nth-child(2) {
-      margin-left: 0 !important;
-      margin-bottom: 10px !important;
-    }
-  
-    /* Target the delete section */
-    div[style*="display: flex"][style*="justify-content: space-between"] > div:last-child {
-      margin-left: 0 !important;
-      align-self: flex-end !important;
-    }
-  
-    /* Disable hover effects on mobile */
-    div[style*="display: flex"][style*="justify-content: space-between"]:hover {
-      transform: none !important;
-      box-shadow: none !important;
-    }
-  
-    button[style*="width: 50px"][style*="height: 50px"]:hover {
-      transform: none !important;
-    }
+/* src/components/Shuffle.css */
+
+@media (max-width: 767px) {
+  .shuffle-container {
+    max-width: 100% !important;
+    padding: 10px !important;
+    margin-top: 65px !important;
   }
+
+  .shuffle-list {
+    width: 100% !important;
+  }
+
+  .template-item {
+    width: 90% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    padding: 12px !important;
+    border-radius: 15px !important;
+  }
+
+  .left-section {
+    flex: 1 !important;
+  }
+
+  .right-section {
+    margin-left: 10px !important;
+    font-size: 1em !important;
+  }
+
+  .name {
+    font-size: 1em !important;
+  }
+
+  .details {
+    font-size: 0.8em !important;
+  }
+
+  .delete-section {
+    margin-left: 10px !important;
+  }
+
+  .delete-button {
+    width: 40px !important;
+    height: 40px !important;
+  }
+
+  .confirmation-popup {
+    padding: 10px !important;
+  }
+
+  .confirmation-content {
+    width: 80% !important;
+    max-width: none !important;
+    padding: 15px !important;
+  }
+
+  .confirmation-content button {
+    margin-top: 10px !important;
+    padding: 8px 16px !important;
+    font-size: 14px !important;
+  }
+}
