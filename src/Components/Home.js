@@ -85,6 +85,16 @@ const Home = () => {
     content: {
       padding: '20px',
     },
+    emptyMessage: {
+      textAlign: 'center',
+      fontSize: '18px',
+      color: '#333',
+      marginTop: '50px',
+      padding: '20px',
+      backgroundColor: '#f8f8f8',
+      borderRadius: '5px',
+      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+    },
   };
 
   const renderContent = () => {
@@ -92,8 +102,13 @@ const Home = () => {
       case 'home':
         return (
         <div>
-        <DoctorList doctors={doctors}  />
-        </div>);
+         {doctors.length === 0 ? (
+            <div style={styles.emptyMessage}>
+              Please go to settings and add a doctor to continue.
+            </div>
+          ) : (
+            <DoctorList doctors={doctors} />
+          )}        </div>);
       case 'shuffle':
         return (
           <div>

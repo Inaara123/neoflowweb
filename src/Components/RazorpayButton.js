@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient'; // Adjust the import path as needed
 import { useNavigate } from 'react-router-dom';
 
-const RazorpayButton = ({ userId, amount }) => {
+const RazorpayButton = ({ userId, amount,onSuccessfulPayment,planName }) => {
   const [scriptLoaded, setScriptLoaded] = useState(false);
   const navigate = useNavigate(); // Use this if you're using React Router
 
@@ -38,7 +38,7 @@ const RazorpayButton = ({ userId, amount }) => {
             .from('subscriptions')
             .upsert({ 
               hospital_id: userId, 
-              plan_name: 'test', 
+              plan_name: planName, 
               subscription_id: response.razorpay_payment_id,
               amount: amount,
               payment_date: new Date().toISOString(),
@@ -49,7 +49,7 @@ const RazorpayButton = ({ userId, amount }) => {
             throw error;
           }
 
-          alert('Payment successful and subscription updated!');
+          onSuccessfulPayment()
           navigate('/home');
 
 

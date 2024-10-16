@@ -135,8 +135,6 @@ const AddPatient = ({ isOpen, onClose, docName,docDept,docId}) => {
           };
         if (data.length ===0) {
             console.log("first patient being entered")
-            console.log("the uid is : ",auth.currentUser.uid)
-            console.log("the master element is : ",masterelement)
             await update(ref(database, 'users/' + auth.currentUser.uid), { realtime: JSON.stringify(transformData([masterelement])) });
 
 

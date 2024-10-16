@@ -93,7 +93,6 @@ const Login = () => {
         if (hospitalIdError.code !== 'PGRST116') {
           throw new Error(hospitalIdError.message);
         } else {
-          setShowHospitalForm(true);
           console.log('UID does not exist in Supabase. Showing hospital form');
           return; // Don't navigate yet
         }

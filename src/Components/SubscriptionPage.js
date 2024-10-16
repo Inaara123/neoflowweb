@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import RazorpayButton from './RazorpayButton';
+import { useNavigate } from 'react-router-dom';
 import { auth } from '../firebase';
 
-const SubscriptionPage = () => {
+const SubscriptionPage = ({updateUserStatus}) => {
   const userId = auth.currentUser.uid;
+  const navigate = useNavigate()
   const [selectedPlan, setSelectedPlan] = useState(null);
 
   const plans = [
@@ -11,6 +13,10 @@ const SubscriptionPage = () => {
     { name: 'Advanced', price: 18, description: 'Advanced Analytics to grow your business' },
     { name: 'Pro', price: 25000, description: 'Talk to your data' },
   ];
+  const handleSuccessfulPayment = () => {
+    updateUserStatus({ isPaidUser: true });
+    navigate('/home');
+  };
 
   return (
     <div style={{ fontFamily: 'Arial, sans-serif', maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
@@ -38,6 +44,7 @@ const SubscriptionPage = () => {
             <RazorpayButton 
               userId={userId} 
               amount={plan.price} 
+              onSuccessfulPayment={handleSuccessfulPayment}
               planName={plan.name}
               style={{
                 backgroundColor: '#007bff',

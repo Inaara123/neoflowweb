@@ -192,6 +192,7 @@
 
 // export default App;
 // src/App.js
+// src/App.js
 import React, { useEffect, useState } from 'react';
 import { auth } from './firebase';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -212,6 +213,10 @@ function AppContent() {
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
+  const updateUserStatus = (newStatus) => {
+    setUserStatus(prevStatus => ({ ...prevStatus, ...newStatus }));
+  };
+
   useEffect(() => {
     const checkUserStatus = async (currentUser) => {
       if (currentUser) {
@@ -226,11 +231,18 @@ function AppContent() {
               .from('subscriptions')
               .select('is_paid')
               .eq('hospital_id', currentUser.uid)
-              .single()
           ]);
 
           const hasDetails = !hospitalResponse.error && hospitalResponse.data;
-          const isPaid = !subscriptionResponse.error && subscriptionResponse.data && subscriptionResponse.data.is_paid;
+          const isPaid = !subscriptionResponse.error && 
+          subscriptionResponse.data && 
+          subscriptionResponse.data.length > 0 &&
+          subscriptionResponse.data[0].is_paid === true;
+          console.log("this is the subscriptionresponse data : ",subscriptionResponse.data)
+          console.log("the current user id is : ",currentUser.uid)
+          console.log("this is hospital response error : ",subscriptionResponse.error)
+          console.log("has details is : ", hasDetails);
+          console.log("Is paid is : ", isPaid);
 
           return { hasHospitalDetails: hasDetails, isPaidUser: isPaid };
         } catch (error) {
@@ -249,16 +261,6 @@ function AppContent() {
       if (currentUser) {
         const status = await checkUserStatus(currentUser);
         setUserStatus(status);
-
-        if (status) {
-          if (!status.hasHospitalDetails) {
-            navigate('/collect-details');
-          } else if (!status.isPaidUser) {
-            navigate('/subscription');
-          } else {
-            navigate('/home');
-          }
-        }
       } else {
         setUserStatus(null);
         navigate('/');
@@ -285,7 +287,7 @@ function AppContent() {
         path="/collect-details"
         element={
           <ProtectedRoute user={user} userStatus={userStatus}>
-            <CollectDetails />
+            <CollectDetails updateUserStatus={updateUserStatus} />
           </ProtectedRoute>
         }
       />
@@ -293,7 +295,7 @@ function AppContent() {
         path="/subscription"
         element={
           <ProtectedRoute user={user} userStatus={userStatus}>
-            <SubscriptionPage />
+            <SubscriptionPage updateUserStatus={updateUserStatus} />
           </ProtectedRoute>
         }
       />
@@ -311,13 +313,13 @@ function AppContent() {
 
 function App() {
   return (
-    <DoctorProvider>
-      <QueueProvider>
-        <BrowserRouter>
+    <BrowserRouter>
+      <DoctorProvider>
+        <QueueProvider>
           <AppContent />
-        </BrowserRouter>
-      </QueueProvider>
-    </DoctorProvider>
+        </QueueProvider>
+      </DoctorProvider>
+    </BrowserRouter>
   );
 }
 

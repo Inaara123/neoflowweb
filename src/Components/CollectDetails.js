@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { auth } from '../firebase';
 
-const CollectDetails = () => {
+const CollectDetails = ({updateUserStatus}) => {
   const [hospitalDetails, setHospitalDetails] = useState({
     name: '',
     mobile: '',
@@ -31,47 +31,51 @@ const CollectDetails = () => {
 
       if (error) throw error;
 
-      // If successful, navigate to home
-      navigate('/home');
+      // If successful, navigate to subscription page
+      updateUserStatus({ hasHospitalDetails: true });
+      navigate('/subscription');
     } catch (error) {
       setError("Failed to submit hospital details. Please try again.");
+      console.error("Error submitting hospital details:", error);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>Enter Hospital Details</h2>
-      <input
-        type="text"
-        placeholder="Hospital Name"
-        value={hospitalDetails.name}
-        onChange={(e) => setHospitalDetails({ ...hospitalDetails, name: e.target.value })}
-        required
-      />
-      <input
-        type="text"
-        placeholder="Mobile Number"
-        value={hospitalDetails.mobile}
-        onChange={(e) => setHospitalDetails({ ...hospitalDetails, mobile: e.target.value })}
-        required
-      />
-      <input
-        type="text"
-        placeholder="Administrator Name"
-        value={hospitalDetails.administrator}
-        onChange={(e) => setHospitalDetails({ ...hospitalDetails, administrator: e.target.value })}
-        required
-      />
-      <input
-        type="text"
-        placeholder="Hospital Address"
-        value={hospitalDetails.address}
-        onChange={(e) => setHospitalDetails({ ...hospitalDetails, address: e.target.value })}
-        required
-      />
-      <button type="submit">Submit</button>
-      {error && <p>{error}</p>}
-    </form>
+    <div style={{ padding: '20px', maxWidth: '500px', margin: '0 auto' }}>
+      <form onSubmit={handleSubmit}>
+        <h2>Enter Hospital Details</h2>
+        <input
+          type="text"
+          placeholder="Hospital Name"
+          value={hospitalDetails.name}
+          onChange={(e) => setHospitalDetails({ ...hospitalDetails, name: e.target.value })}
+          required
+        />
+        <input
+          type="text"
+          placeholder="Mobile Number"
+          value={hospitalDetails.mobile}
+          onChange={(e) => setHospitalDetails({ ...hospitalDetails, mobile: e.target.value })}
+          required
+        />
+        <input
+          type="text"
+          placeholder="Administrator Name"
+          value={hospitalDetails.administrator}
+          onChange={(e) => setHospitalDetails({ ...hospitalDetails, administrator: e.target.value })}
+          required
+        />
+        <input
+          type="text"
+          placeholder="Hospital Address"
+          value={hospitalDetails.address}
+          onChange={(e) => setHospitalDetails({ ...hospitalDetails, address: e.target.value })}
+          required
+        />
+        <button type="submit">Submit</button>
+        {error && <p style={{ color: 'red' }}>{error}</p>}
+      </form>
+    </div>
   );
 };
 
