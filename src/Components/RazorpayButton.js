@@ -26,7 +26,7 @@ const RazorpayButton = ({ userId, amount,onSuccessfulPayment,planName }) => {
     }
 
     const options = {
-      key: 'rzp_test_nCZGf3LzGUjN8M', // Replace with your actual Razorpay key
+      key: 'rzp_live_HxQPdBDt5NSByY', // Replace with your actual Razorpay key
       amount: amount * 100, // Razorpay expects amount in paise
       currency: 'INR',
       name: 'Inaara Ai solutions Pvt Ltd',
