@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useDoctor } from '../DoctorContext';
 import { supabase } from '../supabaseClient';
 import { auth } from '../firebase';
+import { useNavigate } from 'react-router-dom';
 import './SettingsList.css'
 const styles = {
   container: {
@@ -159,6 +160,30 @@ const styles = {
     zIndex: 1000,
     width: '300px',
   },
+  // Add these to your existing styles object
+buttonContainer: {
+  display: 'flex',
+  justifyContent: 'center',
+  gap: '10px',
+  marginBottom: '20px',
+},
+accountInfoPopup: {
+  position: 'fixed',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  backgroundColor: 'white',
+  padding: '20px',
+  borderRadius: '8px',
+  boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+  zIndex: 1000,
+  width: '300px',
+},
+accountInfoContent: {
+  marginTop: '20px',
+  textAlign: 'center',
+},
+
 };
 
 const DoctorCard = ({ doctor, deleteDoctor, updateDoctor }) => {
@@ -497,6 +522,14 @@ const SettingsList = () => {
   const { doctors, deleteDoctor, updateDoctor, addDoctor } = useDoctor();
   const [showAddForm, setShowAddForm] = useState(false);
   const [isAddButtonHovered, setIsAddButtonHovered] = useState(false);
+  const [showAccountInfo, setShowAccountInfo] = useState(false);
+  const [isAccountButtonHovered, setIsAccountButtonHovered] = useState(false);
+  const [isTvButtonHovered, setIsTvButtonHovered] = useState(false);
+  const navigate = useNavigate()
+
+  const handleAccountClick = () => {
+    setShowAccountInfo(!showAccountInfo);
+  };
 
   const handleAddClick = () => {
     setShowAddForm(true);
@@ -505,9 +538,15 @@ const SettingsList = () => {
   const handleCloseAddForm = () => {
     setShowAddForm(false);
   };
+  const handleTvClick = () => {
+    navigate('/tv');
+  };
+  
   
   return (
       <div style={styles.container} className="container">
+                  <div style={styles.buttonContainer}>
+
           <button 
             style={{
               ...styles.addButton,
@@ -520,6 +559,29 @@ const SettingsList = () => {
           >
             Add Doctor
           </button>
+          <button 
+                style={{
+                  ...styles.addButton,
+                  ...(isAccountButtonHovered ? styles.addButtonHover : {})
+                }}
+                onClick={handleAccountClick}
+                onMouseEnter={() => setIsAccountButtonHovered(true)}
+                onMouseLeave={() => setIsAccountButtonHovered(false)}
+              >
+                Account Info
+              </button>
+              <button 
+                style={{
+                  ...styles.addButton,
+                  ...(isTvButtonHovered ? styles.addButtonHover : {})
+                }}
+                onClick={handleTvClick}
+                onMouseEnter={() => setIsTvButtonHovered(true)}
+                onMouseLeave={() => setIsTvButtonHovered(false)}
+              >
+                TV Settings
+              </button>
+              </div>
           {doctors.length === 0 ? (
               <p>Doctors list is empty</p>
           ) : (
@@ -539,6 +601,15 @@ const SettingsList = () => {
           )}
           {showAddForm && (
             <AddDoctorForm onClose={handleCloseAddForm} addDoctor={addDoctor} />
+          )}
+          {showAccountInfo && (
+            <div style={styles.modifyPopup}>
+              <button style={styles.closeButton} onClick={() => setShowAccountInfo(false)}>X</button>
+              <div style={{ textAlign: 'center', marginTop: '20px' }}>
+                <h3>Account Information</h3>
+                <p>Account Status: Active</p>
+              </div>
+            </div>
           )}
       </div>
   )
