@@ -110,7 +110,9 @@ const AddPatient = ({ isOpen, onClose, docName, docDept, docId }) => {
   const { data, loading, error } = useQueue();
   const { planName, loading: planLoading } = useSubscription();
   const [formData, setFormData] = useState(initialFormData);
+  const [patientId, setpatientId] = useState(null);
   console.log("the current plan is : ",planName)
+  
 
   useEffect(() => {
     if (isOpen) {
@@ -145,8 +147,97 @@ const AddPatient = ({ isOpen, onClose, docName, docDept, docId }) => {
         const addData = [...data, masterelement]
         await update(ref(database, 'users/' + auth.currentUser.uid), { realtime: JSON.stringify(transformData(addData)) });
       }
+      // Calculate date_of_birth based on age
+function calculateDateOfBirth(age) {
+  const currentDate = new Date();
+  currentDate.setFullYear(currentDate.getFullYear() - age);
+  return currentDate.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+}
+
+// Calculate the date of birth from formData.age and assign to dob
+const dob = calculateDateOfBirth(formData.age);
+      // Supabase insertions
+
+// Normalize the name in JavaScript by converting to lowercase and removing spaces
+const normalizedName = formData.name.toLowerCase().replace(/\s+/g, '');
+const now = new Date();
+const istOffset = 5.5 * 60 * 60 * 1000; // IST is UTC+5:30
+const istTime = new Date(now.getTime() + istOffset).toISOString();
+// Search for an existing patient by contact number and normalized name
+const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const currentDayOfWeek = daysOfWeek[new Date(now.getTime() + (330 * 60 * 1000)).getDay()];
+console.log('day here is',currentDayOfWeek);
+
+if (planName === 'Advanced') {
+  console.log("The hospital has an 'Advanced' subscription plan.");
+  // Add your logic for when the plan is 'Advanced'
+const { data: existingPatient, error: searchError } = await supabase
+  .from('patients')
+  .select('patient_id')
+  .eq('contact_number', formData.mobile)
+  .filter('name', 'ilike', `%${normalizedName}%`) // Using `ilike` for case-insensitive search
+  .single();
+
+if (searchError && searchError.code !== 'PGRST116') { // 'PGRST116' is "No rows" error
+    console.error("Error searching for existing patient:", searchError.message);
+    throw new Error("Error searching for existing patient");
+}
+else{
+  if (existingPatient) {
+    // Patient found, retrieve patient_id
+    setpatientId(existingPatient.patient_id);
+    console.log("Existing patient ID:", patientId);
+  } 
+  else{
+  const { data: patientData, error: patientError } = await supabase
+  .from('patients')
+  .insert([{ 
+    name: formData.name,
+    address: formData.address || 'Unknown',  // Provide actual value if available
+    contact_number: formData.mobile || 'Unknown', // Provide actual value if available // Provide actual value if available
+    gender: formData.gender || 'Unknown', // Provide actual value if available
+    how_did_you_get_to_know_us: formData.howDidYouKnowUs || 'Unknown',
+    date_of_birth: dob || null,
+    created_at: istTime
+  }])
+  .select()  // Ensure the returned data includes the newly inserted record
+  .single();
+
+  if (patientError) {
+    console.error("Error inserting patient data:", patientError.message);
+    throw new Error("Error inserting patient data");
+  } else {
+    console.log("Patient data inserted successfully:", patientData);
+    setpatientId(patientData.patient_id);  // Retrieve the patient_id
+    console.log("Newly inserted patient ID:", patientId);
+  }
+}
+ 
+const { data: appointmentData, error: appointmentError } = await supabase
+  .from('appointments')
+  .insert([{ 
+    hospital_id: auth.currentUser.uid,
+    patient_id: patientId, // Use returned patient ID
+    doctor_id: docId,
+    appointment_time: istTime,
+    status: 'scheduled', // Modify as needed
+    appointment_type: 'Walk-in', // Modify as needed
+    reason_for_visit: formData.reasonForVisit || 'General Consultation',
+    consultation_start_time: istTime,
+    day_of_week:currentDayOfWeek
+  }]);
+  if (appointmentError) {
+    console.error("Error inserting appointment data:", appointmentError.message);
+    throw new Error("Error inserting appointment data");
+  } else {
+    console.log("Appointment data inserted successfully:", appointmentData);
+  }
+
+}
+}
       onClose()
     } catch {
+      console.log(error);
       console.log("Error in AddPatient.js")
     }
   };
