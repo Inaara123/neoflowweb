@@ -12,6 +12,8 @@ const CollectDetails = ({ updateUserStatus }) => {
     latitude: '',
     longitude: ''
   });
+  const apiKey = process.env.NODE_ENV = process.env.REACT_APP_GOOGLE_MAPS_API_KEY_PROD
+
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const mapRef = useRef(null);
@@ -21,7 +23,7 @@ const CollectDetails = ({ updateUserStatus }) => {
   useEffect(() => {
     const loadGoogleMapsScript = () => {
       const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyDP6MAxHVZJQMeIT8LOG6q69AMnCRjxc8U&libraries=places`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
       script.async = true;
       script.defer = true;
       script.onload = () => {
