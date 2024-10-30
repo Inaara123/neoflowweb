@@ -122,6 +122,15 @@ const AddPatient = ({ isOpen, onClose, docName, docDept, docId }) => {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData((prevData) => {
+    const updatedData = { ...prevData, [name]: value };
+     // Update reason for visit if consultation type is 'follow-up'
+     if (name === 'consultationType' && value === 'follow-up') {
+      updatedData.reasonForVisit = 'Follow-Up'; // Set reason for visit
+    }
+    return updatedData;
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -295,6 +304,15 @@ const { data: appointmentData, error: appointmentError } = await supabase
                 value={formData.age}
                 onChange={handleChange}
               />
+              <select
+            style={styles.select}
+            name="consultationType"
+            value={formData.consultationType}
+            onChange={handleChange}
+          >
+            <option value="new">New Consultation</option>
+            <option value="follow-up">Follow-Up</option>
+          </select>
               <input
                 style={styles.input}
                 type="text"
