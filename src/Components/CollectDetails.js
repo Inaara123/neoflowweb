@@ -12,7 +12,7 @@ const CollectDetails = ({ updateUserStatus }) => {
     latitude: '',
     longitude: ''
   });
-  const apiKey = process.env.NODE_ENV = process.env.REACT_APP_GOOGLE_MAPS_API_KEY_PROD
+  const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY_PROD
 
   const [error, setError] = useState('');
   const navigate = useNavigate();
