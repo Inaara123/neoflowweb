@@ -3,7 +3,9 @@ import React, { useState, useEffect } from 'react';
 import {auth} from '../firebase';
 import { ref, update } from 'firebase/database';
 import { database } from '../firebase';
+import { supabase } from '../supabaseClient';
 import { useQueue } from '../QueueContext';
+import { useSubscription } from '../SubscriptionContext';
 
 const styles = {
   popup: {
@@ -59,10 +61,9 @@ const styles = {
     fontSize: '18px',
     cursor: 'pointer',
   },
-  pophead : {
-    fontSize : '12px',
-    backgroundColor : "3865ad",
-    
+  pophead: {
+    fontSize: '12px',
+    backgroundColor: "3865ad",
   }
 };
 
@@ -75,41 +76,41 @@ const initialFormData = {
   reasonForVisit: '',
   howDidYouKnowUs: '',
 };
+
 function getOrCreateWaitNumberForDocId(data, docid) {
-    let totalWaitNo = 0;
-    let docExists = false;
+  let totalWaitNo = 0;
+  let docExists = false;
 
-    for (const key in data) {
-      if (data[key].docid === docid) {
-        totalWaitNo += 1;
-        docExists = true;
-      }
+  for (const key in data) {
+    if (data[key].docid === docid) {
+      totalWaitNo += 1;
+      docExists = true;
     }
-
-    if (!docExists) {
-      totalWaitNo = 0;
-    }
-
-    return totalWaitNo;
-  }
-  function transformData(data) {
-    return data.reduce((acc, item, index) => {
-      // Create a new object without the 'sno' property
-      const { sno, ...rest } = item;
-      
-      // Use index + 1 as the key, and spread the rest of the properties
-      acc[index + 1] = {
-        ...rest,
-        sno: (index + 1).toString() // Ensure sno is a string and matches the new key
-      };
-      
-      return acc;
-    }, {});
   }
 
-const AddPatient = ({ isOpen, onClose, docName,docDept,docId}) => {
-  const { data, loading,error } = useQueue();
+  if (!docExists) {
+    totalWaitNo = 0;
+  }
+
+  return totalWaitNo;
+}
+
+function transformData(data) {
+  return data.reduce((acc, item, index) => {
+    const { sno, ...rest } = item;
+    acc[index + 1] = {
+      ...rest,
+      sno: (index + 1).toString()
+    };
+    return acc;
+  }, {});
+}
+
+const AddPatient = ({ isOpen, onClose, docName, docDept, docId }) => {
+  const { data, loading, error } = useQueue();
+  const { planName, loading: planLoading } = useSubscription();
   const [formData, setFormData] = useState(initialFormData);
+  console.log("the current plan is : ",planName)
 
   useEffect(() => {
     if (isOpen) {
@@ -129,36 +130,25 @@ const AddPatient = ({ isOpen, onClose, docName,docDept,docId}) => {
       return;
     }
     try {
-        const masterelement = {
-            sno : data.length +1,
-            name: formData.name,
-            docname: docName,
-            docdept: docDept,
-            docid : docId,
-            waitno : getOrCreateWaitNumberForDocId(data,docId)
-
-          };
-        if (data.length ===0) {
-            console.log("first patient being entered")
-            await update(ref(database, 'users/' + auth.currentUser.uid), { realtime: JSON.stringify(transformData([masterelement])) });
-
-
-
-        }else{
-            const addData = [...data,masterelement]
-            await update(ref(database, 'users/' + auth.currentUser.uid), { realtime: JSON.stringify(transformData(addData)) });
-
-
-        }onClose()
-
-
-    }catch {
-        console.log("Error in AddPatient.js")
-
+      const masterelement = {
+        sno: data.length + 1,
+        name: formData.name,
+        docname: docName,
+        docdept: docDept,
+        docid: docId,
+        waitno: getOrCreateWaitNumberForDocId(data, docId)
+      };
+      if (data.length === 0) {
+        console.log("first patient being entered")
+        await update(ref(database, 'users/' + auth.currentUser.uid), { realtime: JSON.stringify(transformData([masterelement])) });
+      } else {
+        const addData = [...data, masterelement]
+        await update(ref(database, 'users/' + auth.currentUser.uid), { realtime: JSON.stringify(transformData(addData)) });
+      }
+      onClose()
+    } catch {
+      console.log("Error in AddPatient.js")
     }
-
-
- 
   };
 
   if (!isOpen) return null;
@@ -178,61 +168,65 @@ const AddPatient = ({ isOpen, onClose, docName,docDept,docId}) => {
             onChange={handleChange}
             required
           />
-          <input
-            style={styles.input}
-            type="tel"
-            name="mobile"
-            placeholder="Mobile"
-            value={formData.mobile}
-            onChange={handleChange}
-          />
-          <input
-            style={styles.input}
-            type="text"
-            name="address"
-            placeholder="Address"
-            value={formData.address}
-            onChange={handleChange}
-          />
-          <select
-            style={styles.select}
-            name="gender"
-            value={formData.gender}
-            onChange={handleChange}
-          >
-            <option value="">Select Gender</option>
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
-          </select>
-          <input
-            style={styles.input}
-            type="number"
-            name="age"
-            placeholder="Age"
-            value={formData.age}
-            onChange={handleChange}
-          />
-          <input
-            style={styles.input}
-            type="text"
-            name="reasonForVisit"
-            placeholder="Reason for Visit"
-            value={formData.reasonForVisit}
-            onChange={handleChange}
-          />
-          <select
-            style={styles.select}
-            name="howDidYouKnowUs"
-            value={formData.howDidYouKnowUs}
-            onChange={handleChange}
-          >
-            <option value="">How did you know us?</option>
-            <option value="Friends & Family">Friends & Family</option>
-            <option value="Google">Google</option>
-            <option value="Facebook">Facebook</option>
-            <option value="Instagram">Instagram</option>
-            <option value="Others">Others</option>
-          </select>
+          {planName !== 'Essential' && (
+            <>
+              <input
+                style={styles.input}
+                type="tel"
+                name="mobile"
+                placeholder="Mobile"
+                value={formData.mobile}
+                onChange={handleChange}
+              />
+              <input
+                style={styles.input}
+                type="text"
+                name="address"
+                placeholder="Address"
+                value={formData.address}
+                onChange={handleChange}
+              />
+              <select
+                style={styles.select}
+                name="gender"
+                value={formData.gender}
+                onChange={handleChange}
+              >
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
+              <input
+                style={styles.input}
+                type="number"
+                name="age"
+                placeholder="Age"
+                value={formData.age}
+                onChange={handleChange}
+              />
+              <input
+                style={styles.input}
+                type="text"
+                name="reasonForVisit"
+                placeholder="Reason for Visit"
+                value={formData.reasonForVisit}
+                onChange={handleChange}
+              />
+              <select
+                style={styles.select}
+                name="howDidYouKnowUs"
+                value={formData.howDidYouKnowUs}
+                onChange={handleChange}
+              >
+                <option value="">How did you know us?</option>
+                <option value="Friends & Family">Friends & Family</option>
+                <option value="Google">Google</option>
+                <option value="Facebook">Facebook</option>
+                <option value="Instagram">Instagram</option>
+                <option value="Others">Others</option>
+              </select>
+            </>
+          )}
           <button style={styles.submitButton} type="submit">Submit</button>
         </form>
       </div>

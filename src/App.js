@@ -10,6 +10,7 @@ import SubscriptionPage from './Components/SubscriptionPage';
 import { QueueProvider } from './QueueContext';
 import { DoctorProvider } from './DoctorContext';
 import { MediaProvider } from './MediaContext';
+import { SubscriptionProvider } from './SubscriptionContext';
 import ProtectedRoute from './ProtectedRoute';
 import { supabase } from './supabaseClient';
 
@@ -131,11 +132,13 @@ function App() {
   return (
     <BrowserRouter>
     <MediaProvider>
+    <SubscriptionProvider>
       <DoctorProvider>
         <QueueProvider>
           <AppContent />
         </QueueProvider>
       </DoctorProvider>
+      </SubscriptionProvider>
       </MediaProvider>
     </BrowserRouter>
   );

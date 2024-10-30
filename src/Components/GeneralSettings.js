@@ -172,7 +172,7 @@ const GeneralSettings = () => {
       setLoading(true);
       const { data, error } = await supabase.storage
         .from('media_bucket')
-        .list('public');
+        .list(`${auth.currentUser.uid}`); // Changed from 'public' to user's UID
   
       if (error) throw error;
   
@@ -180,7 +180,7 @@ const GeneralSettings = () => {
         data.map(async (file) => {
           const { data: { publicUrl } } = supabase.storage
             .from('media_bucket')
-            .getPublicUrl(`public/${file.name}`);
+            .getPublicUrl(`${auth.currentUser.uid}/${file.name}`); // Changed path to include UID
           
           return {
             url: publicUrl,
@@ -189,13 +189,11 @@ const GeneralSettings = () => {
           };
         })
       );
-
-      const photoFiles = urls.filter(file => file.type === 'image');
-      setPhotoCount(photoFiles.length);
   
       const orderRef = ref(database, `users/${auth.currentUser.uid}/mediaOrder`);
       const orderSnapshot = await get(orderRef);
       const currentOrder = orderSnapshot.val()?.urls || [];
+      setPhotoCount(currentOrder.length);
   
       if (currentOrder.length > 0) {
         const orderedFiles = currentOrder
@@ -221,9 +219,7 @@ const GeneralSettings = () => {
         
         setMediaFiles([...orderedFiles, ...remainingFiles]);
       } else {
-        const newUrls = urls.map(file => file.url);
-        await update(orderRef, { urls: newUrls });
-        setMediaFiles(urls);
+        setMediaFiles([]);
       }
   
     } catch (error) {
@@ -232,7 +228,6 @@ const GeneralSettings = () => {
       setLoading(false);
     }
   };
-
   const getYouTubeVideoId = (url) => {
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
     const match = url.match(regExp);
@@ -337,7 +332,7 @@ const GeneralSettings = () => {
       for (const file of files) {
         const fileExt = file.name.split('.').pop();
         const fileName = `${Math.random()}.${fileExt}`;
-        const filePath = `public/${fileName}`;
+        const filePath = `${auth.currentUser.uid}/${fileName}`; // Changed from 'public' to include UID
   
         const { error: uploadError } = await supabase.storage
           .from('media_bucket')
@@ -352,13 +347,13 @@ const GeneralSettings = () => {
   
       const { data: newMediaFiles } = await supabase.storage
         .from('media_bucket')
-        .list('public');
+        .list(`${auth.currentUser.uid}`); // Changed from 'public' to user's UID
   
       const newUrls = await Promise.all(
         newMediaFiles.map(async (file) => {
           const { data: { publicUrl } } = supabase.storage
             .from('media_bucket')
-            .getPublicUrl(`public/${file.name}`);
+            .getPublicUrl(`${auth.currentUser.uid}/${file.name}`); // Changed path to include UID
           
           return {
             url: publicUrl,
@@ -380,7 +375,6 @@ const GeneralSettings = () => {
       setLoading(false);
     }
   };
-
   const handleDeleteMedia = async (fileName) => {
     try {
       setLoading(true);
@@ -395,7 +389,7 @@ const GeneralSettings = () => {
       } else {
         const { error } = await supabase.storage
           .from('media_bucket')
-          .remove([`public/${fileName}`]);
+          .remove([`${auth.currentUser.uid}/${fileName}`]); // Changed from 'public' to include UID
     
         if (error) throw error;
     
@@ -414,6 +408,40 @@ const GeneralSettings = () => {
       setLoading(false);
     }
   };
+
+  // const handleDeleteMedia = async (fileName) => {
+  //   try {
+  //     setLoading(true);
+      
+  //     if (fileName.startsWith('youtube-')) {
+  //       const updatedMediaFiles = mediaFiles.filter(file => file.name !== fileName);
+  //       setMediaFiles(updatedMediaFiles);
+        
+  //       await update(ref(database, `users/${auth.currentUser.uid}/mediaOrder`), {
+  //         urls: updatedMediaFiles.map(file => file.url)
+  //       });
+  //     } else {
+  //       const { error } = await supabase.storage
+  //         .from('media_bucket')
+  //         .remove([`public/${fileName}`]);
+    
+  //       if (error) throw error;
+    
+  //       await fetchMedia();
+        
+  //       const remainingMediaFiles = mediaFiles.filter(file => file.name !== fileName);
+  //       const urls = remainingMediaFiles.map(file => file.url);
+        
+  //       await update(ref(database, `users/${auth.currentUser.uid}/mediaOrder`), {
+  //         urls: urls
+  //       });
+  //     }
+  //   } catch (error) {
+  //     console.error('Error deleting media:', error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   const handleAddVideoUrl = () => {
     setShowVideoInput(true);
@@ -510,12 +538,12 @@ const GeneralSettings = () => {
           >
             Add Photos {photoCount}/15
           </button>
-          <button 
+          {/* <button 
             style={styles.mediaButton}
             onClick={handleAddVideoUrl}
           >
             Add Video URL
-          </button>
+          </button> */}
         </div>
 
         {showVideoInput && (

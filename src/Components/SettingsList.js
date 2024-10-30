@@ -525,9 +525,53 @@ const SettingsList = () => {
   const [showAccountInfo, setShowAccountInfo] = useState(false);
   const [isAccountButtonHovered, setIsAccountButtonHovered] = useState(false);
   const [isTvButtonHovered, setIsTvButtonHovered] = useState(false);
-  const navigate = useNavigate()
+  const [accountDetails, setAccountDetails] = useState(null);
+  const navigate = useNavigate();
+  const fetchAccountDetails = async () => {
+    try {
+      const user = auth.currentUser;
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('subscriptions')
+        .select('payment_date')
+        .eq('hospital_id', user.uid)
+        .single();
+
+      if (error) throw error;
+
+      if (data) {
+        const paymentDate = new Date(data.payment_date);
+        const currentDate = new Date();
+        const endDate = new Date(paymentDate);
+        endDate.setFullYear(endDate.getFullYear() + 1);
+
+        const isActive = currentDate < endDate;
+
+        const formatDate = (date) => {
+          return date.toLocaleDateString('en-US', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+          });
+        };
+
+        setAccountDetails({
+          status: isActive ? 'Active' : 'Expired',
+          startDate: formatDate(paymentDate),
+          endDate: formatDate(endDate),
+          email: user.email
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching account details:", error);
+    }
+  };
 
   const handleAccountClick = () => {
+    if (!showAccountInfo) {
+      fetchAccountDetails();
+    }
     setShowAccountInfo(!showAccountInfo);
   };
 
@@ -602,15 +646,30 @@ const SettingsList = () => {
           {showAddForm && (
             <AddDoctorForm onClose={handleCloseAddForm} addDoctor={addDoctor} />
           )}
-          {showAccountInfo && (
-            <div style={styles.modifyPopup}>
-              <button style={styles.closeButton} onClick={() => setShowAccountInfo(false)}>X</button>
-              <div style={{ textAlign: 'center', marginTop: '20px' }}>
-                <h3>Account Information</h3>
-                <p>Account Status: Active</p>
-              </div>
-            </div>
-          )}
+      {showAccountInfo && (
+        <div style={styles.modifyPopup}>
+          <button style={styles.closeButton} onClick={() => setShowAccountInfo(false)}>X</button>
+          <div style={{ textAlign: 'center', marginTop: '20px' }}>
+            <h3>Account Information</h3>
+            {accountDetails ? (
+              <>
+                <p>Account Status: <span style={{
+                  color: accountDetails.status === 'Active' ? 'green' : 'red',
+                  fontWeight: 'bold'
+                }}>{accountDetails.status}</span></p>
+                <p>Subscription Start Date: {accountDetails.startDate}</p>
+                <p>Subscription End Date: {accountDetails.endDate}</p>
+                <p>Login ID: {accountDetails.email}</p>
+                <p style={{ marginTop: '20px', fontSize: '0.9em', color: '#666' }}>
+                  For customer support, reach out to us at support@inaara.ai
+                </p>
+              </>
+            ) : (
+              <p>Loading account details...</p>
+            )}
+          </div>
+        </div>
+      )}
       </div>
   )
 }
