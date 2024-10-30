@@ -34,7 +34,7 @@ const styles = {
     gap: '10px',
   },
   input: {
-    padding: '10px',
+    padding: '8px',
     borderRadius: '4px',
     border: '1px solid #ccc',
   },
