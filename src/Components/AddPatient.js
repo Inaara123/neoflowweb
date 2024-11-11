@@ -226,7 +226,7 @@ const { data: appointmentData, error: appointmentError } = await supabase
   .from('appointments')
   .insert([{ 
     hospital_id: auth.currentUser.uid,
-    patient_id: patientId, // Use returned patient ID
+    patient_id: patientData.patient_id, // Use returned patient ID
     doctor_id: docId,
     appointment_time: istTime,
     status: 'scheduled', // Modify as needed
