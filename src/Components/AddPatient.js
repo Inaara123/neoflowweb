@@ -222,12 +222,12 @@ else{
   }
 }
 
-console.log('patient_id consoled',patient_id);
+console.log('patient_id consoled',patientId);
 const { data: appointmentData, error: appointmentError } = await supabase
   .from('appointments')
   .insert([{ 
     hospital_id: auth.currentUser.uid,
-    patient_id: patient_id, // Use returned patient ID
+    patient_id: patientId, // Use returned patient ID
     doctor_id: docId,
     appointment_time: istTime,
     status: 'scheduled', // Modify as needed
