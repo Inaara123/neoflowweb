@@ -221,7 +221,8 @@ else{
     console.log("Newly inserted patient ID:", patientId);
   }
 }
- 
+
+console.log('patient_id consoled',patientId);
 const { data: appointmentData, error: appointmentError } = await supabase
   .from('appointments')
   .insert([{ 
