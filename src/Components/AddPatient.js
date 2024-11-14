@@ -156,6 +156,7 @@ const AddPatient = ({ isOpen, onClose, docName, docDept, docId }) => {
         const addData = [...data, masterelement]
         await update(ref(database, 'users/' + auth.currentUser.uid), { realtime: JSON.stringify(transformData(addData)) });
       }
+       console.log("i am trying to add a patient1")
       // Calculate date_of_birth based on age
 function calculateDateOfBirth(age) {
   const currentDate = new Date();
