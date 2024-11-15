@@ -6,143 +6,145 @@ import { supabase } from '../supabaseClient';
 import { useQueue } from '../QueueContext';
 import { useSubscription } from '../SubscriptionContext';
 import AddressAutocomplete from './AddressAutocomplete';
-import './AddPatient.css'
+import { getResponsiveStyles,useWindowSize } from './responsiveStyles';
+// import './AddPatient.css'
+
 import { Search, User, Phone, MapPin, Calendar } from 'lucide-react';
 
-const styles = {
-  popup: {
-    position: 'fixed',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    backgroundColor: 'white',
-    padding: '24px',
-    borderRadius: '12px',
-    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
-    zIndex: 1000,
-    width: '90%',
-    maxWidth: '1200px',
-    maxHeight: '90vh',
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  header: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: '20px',
-  },
-  title: {
-    fontSize: '20px',
-    fontWeight: '600',
-    color: '#2d3748',
-  },
-  closeButton: {
-    background: 'none',
-    border: 'none',
-    fontSize: '24px',
-    cursor: 'pointer',
-    color: '#4a5568',
-  },
-  content: {
-    display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
-    gap: '24px',
-    overflowY: 'auto',
-    padding: '4px',
-  },
-  leftPanel: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '16px',
-  },
-  rightPanel: {
-    borderLeft: '1px solid #e2e8f0',
-    paddingLeft: '24px',
-  },
-  searchResults: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '12px',
-    marginTop: '16px',
-  },
-  patientCard: {
-    padding: '16px',
-    borderRadius: '8px',
-    border: '1px solid #e2e8f0',
-    cursor: 'pointer',
-    transition: 'all 0.2s',
-    backgroundColor: 'white',
-  },
-  patientCardSelected: {
-    padding: '16px',
-    borderRadius: '8px',
-    border: '2px solid #4299e1',
-    cursor: 'pointer',
-    backgroundColor: '#ebf8ff',
-  },
-  actionButton: {
-    backgroundColor: '#4299e1',
-    color: 'white',
-    border: 'none',
-    padding: '8px 16px',
-    borderRadius: '6px',
-    cursor: 'pointer',
-    fontSize: '14px',
-    fontWeight: '500',
-    marginTop: '8px',
-  },
-  form: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '16px',
-  },
-  inputGroup: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '4px',
-  },
-  label: {
-    fontSize: '14px',
-    color: '#4a5568',
-    fontWeight: '500',
-  },
-  input: {
-    padding: '8px 12px',
-    borderRadius: '6px',
-    border: '1px solid #e2e8f0',
-    fontSize: '14px',
-    width: '100%',
-  },
-  select: {
-    padding: '8px 12px',
-    borderRadius: '6px',
-    border: '1px solid #e2e8f0',
-    fontSize: '14px',
-    width: '100%',
-    backgroundColor: 'white',
-  },
-  submitButton: {
-    backgroundColor: '#4169E1',
-    color: 'white',
-    border: 'none',
-    padding: '12px',
-    borderRadius: '6px',
-    cursor: 'pointer',
-    fontSize: '16px',
-    fontWeight: '500',
-    marginTop: '16px',
-  },
-  overlay: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    zIndex: 999,
-  },
-};
+// const styles = {
+//   popup: {
+//     position: 'fixed',
+//     top: '50%',
+//     left: '50%',
+//     transform: 'translate(-50%, -50%)',
+//     backgroundColor: 'white',
+//     padding: '24px',
+//     borderRadius: '12px',
+//     boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
+//     zIndex: 1000,
+//     width: '90%',
+//     maxWidth: '1200px',
+//     maxHeight: '90vh',
+//     display: 'flex',
+//     flexDirection: 'column',
+//   },
+//   header: {
+//     display: 'flex',
+//     justifyContent: 'space-between',
+//     alignItems: 'center',
+//     marginBottom: '20px',
+//   },
+//   title: {
+//     fontSize: '20px',
+//     fontWeight: '600',
+//     color: '#2d3748',
+//   },
+//   closeButton: {
+//     background: 'none',
+//     border: 'none',
+//     fontSize: '24px',
+//     cursor: 'pointer',
+//     color: '#4a5568',
+//   },
+//   content: {
+//     display: 'grid',
+//     gridTemplateColumns: '1fr 1fr',
+//     gap: '24px',
+//     overflowY: 'auto',
+//     padding: '4px',
+//   },
+//   leftPanel: {
+//     display: 'flex',
+//     flexDirection: 'column',
+//     gap: '16px',
+//   },
+//   rightPanel: {
+//     borderLeft: '1px solid #e2e8f0',
+//     paddingLeft: '24px',
+//   },
+//   searchResults: {
+//     display: 'flex',
+//     flexDirection: 'column',
+//     gap: '12px',
+//     marginTop: '16px',
+//   },
+//   patientCard: {
+//     padding: '16px',
+//     borderRadius: '8px',
+//     border: '1px solid #e2e8f0',
+//     cursor: 'pointer',
+//     transition: 'all 0.2s',
+//     backgroundColor: 'white',
+//   },
+//   patientCardSelected: {
+//     padding: '16px',
+//     borderRadius: '8px',
+//     border: '2px solid #4299e1',
+//     cursor: 'pointer',
+//     backgroundColor: '#ebf8ff',
+//   },
+//   actionButton: {
+//     backgroundColor: '#4299e1',
+//     color: 'white',
+//     border: 'none',
+//     padding: '8px 16px',
+//     borderRadius: '6px',
+//     cursor: 'pointer',
+//     fontSize: '14px',
+//     fontWeight: '500',
+//     marginTop: '8px',
+//   },
+//   form: {
+//     display: 'flex',
+//     flexDirection: 'column',
+//     gap: '16px',
+//   },
+//   inputGroup: {
+//     display: 'flex',
+//     flexDirection: 'column',
+//     gap: '4px',
+//   },
+//   label: {
+//     fontSize: '14px',
+//     color: '#4a5568',
+//     fontWeight: '500',
+//   },
+//   input: {
+//     padding: '8px 12px',
+//     borderRadius: '6px',
+//     border: '1px solid #e2e8f0',
+//     fontSize: '14px',
+//     width: '100%',
+//   },
+//   select: {
+//     padding: '8px 12px',
+//     borderRadius: '6px',
+//     border: '1px solid #e2e8f0',
+//     fontSize: '14px',
+//     width: '100%',
+//     backgroundColor: 'white',
+//   },
+//   submitButton: {
+//     backgroundColor: '#4169E1',
+//     color: 'white',
+//     border: 'none',
+//     padding: '12px',
+//     borderRadius: '6px',
+//     cursor: 'pointer',
+//     fontSize: '16px',
+//     fontWeight: '500',
+//     marginTop: '16px',
+//   },
+//   overlay: {
+//     position: 'fixed',
+//     top: 0,
+//     left: 0,
+//     right: 0,
+//     bottom: 0,
+//     backgroundColor: 'rgba(0, 0, 0, 0.5)',
+//     zIndex: 999,
+//   },
+// };
 
 const initialFormData = {
   name: '',
@@ -185,6 +187,9 @@ function transformData(data) {
 }
 
 const AddPatient = ({ isOpen, onClose, docName, docDept, docId }) => {
+  const { width } = useWindowSize();
+  const isMobile = width < 768; // Define mobile breakpoint
+  const styles = getResponsiveStyles(isMobile);
   const { data, loading, error } = useQueue();
   const { planName, loading: planLoading } = useSubscription();
   // const [formData, setFormData] = useState(initialFormData);
@@ -336,7 +341,6 @@ const AddPatient = ({ isOpen, onClose, docName, docDept, docId }) => {
       return updatedData;
     });
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (formData.name.trim() === '') {
@@ -345,26 +349,6 @@ const AddPatient = ({ isOpen, onClose, docName, docDept, docId }) => {
     }
 
     try {
-      const masterelement = {
-        sno: data.length + 1,
-        name: formData.name,
-        docname: docName,
-        docdept: docDept,
-        docid: docId,
-        waitno: getOrCreateWaitNumberForDocId(data, docId)
-      };
-
-      if (data.length === 0) {
-        await update(ref(database, 'users/' + auth.currentUser.uid), 
-          { realtime: JSON.stringify(transformData([masterelement])) }
-        );
-      } else {
-        const addData = [...data, masterelement];
-        await update(ref(database, 'users/' + auth.currentUser.uid), 
-          { realtime: JSON.stringify(transformData(addData)) }
-        );
-      }
-
       const now = new Date();
       const istOffset = 5.5 * 60 * 60 * 1000;
       const istTime = new Date(now.getTime() + istOffset).toISOString();
@@ -373,6 +357,7 @@ const AddPatient = ({ isOpen, onClose, docName, docDept, docId }) => {
 
       let currentPatientId = patientId;
 
+      // First: Handle patient data in Supabase
       if (isNewPatient) {
         const dob = formData.age ? calculateDateOfBirth(formData.age) : null;
         const { data: newPatient, error: patientError } = await supabase
@@ -388,16 +373,14 @@ const AddPatient = ({ isOpen, onClose, docName, docDept, docId }) => {
             latitude: formData.latitude || null,
             longitude: formData.longitude || null,
             distance_travelled: formData.distance_travelled || null,
-            duration_travelled : formData.duration_travelled || null,
-
+            duration_travelled: formData.duration_travelled || null,
           }])
           .select()
           .single();
 
         if (patientError) throw patientError;
         currentPatientId = newPatient.patient_id;
-      }else {
-        // If updating an existing patient, update the location and distance info
+      } else {
         const { error: updateError } = await supabase
           .from('patients')
           .update({
@@ -406,11 +389,12 @@ const AddPatient = ({ isOpen, onClose, docName, docDept, docId }) => {
             distance_travelled: formData.distance_travelled || null
           })
           .eq('patient_id', currentPatientId);
-  
+
         if (updateError) throw updateError;
       }
 
-      const { error: appointmentError } = await supabase
+      // Second: Create appointment in Supabase and get the appointment_id
+      const { data: appointmentData, error: appointmentError } = await supabase
         .from('appointments')
         .insert([{
           hospital_id: auth.currentUser.uid,
@@ -422,14 +406,41 @@ const AddPatient = ({ isOpen, onClose, docName, docDept, docId }) => {
           reason_for_visit: formData.reasonForVisit || 'General Consultation',
           consultation_start_time: istTime,
           day_of_week: currentDayOfWeek
-        }]);
+        }])
+        .select()  // Add this to return the inserted row
+        .single(); // Get the single inserted row
 
       if (appointmentError) throw appointmentError;
+
+      // Third: Create master element with appointment_id and send to Firebase
+      const masterelement = {
+        sno: data.length + 1,
+        name: formData.name,
+        docname: docName,
+        docdept: docDept,
+        docid: docId,
+        waitno: getOrCreateWaitNumberForDocId(data, docId),
+        appointment_id: appointmentData.appointment_id  // Add the appointment_id here
+      };
+
+      // Update Firebase with the master element including appointment_id
+      if (data.length === 0) {
+        await update(ref(database, 'users/' + auth.currentUser.uid), 
+          { realtime: JSON.stringify(transformData([masterelement])) }
+        );
+      } else {
+        const addData = [...data, masterelement];
+        await update(ref(database, 'users/' + auth.currentUser.uid), 
+          { realtime: JSON.stringify(transformData(addData)) }
+        );
+      }
+
       onClose();
     } catch (error) {
       console.error('Error in AddPatient.js:', error);
     }
   };
+
 
   function calculateDateOfBirth(age) {
     const currentDate = new Date();
@@ -448,25 +459,33 @@ const AddPatient = ({ isOpen, onClose, docName, docDept, docId }) => {
         </div>
         
         <div style={styles.content}>
-          <div style={styles.leftPanel}>
-            <div style={styles.inputGroup}>
-              <label style={styles.label}>Mobile Number</label>
-              <input
-                style={styles.input}
-                type="tel"
-                maxLength="10"
-                name="mobile"
-                placeholder="Enter 10 digit mobile number"
-                value={formData.mobile}
-                onChange={handleMobileChange}
-              />
-            </div>
+        <div style={styles.leftPanel}>
+  <div style={styles.mobileNumberContainer}>
+    <div style={styles.mobileInputWrapper}>
+      <label style={styles.mobileInputLabel}>Mobile Number</label>
+      <div style={styles.mobileInputContainer}>
+        <input
+          style={styles.mobileInputField}
+          type="tel"
+          maxLength="10"
+          name="mobile"
+          placeholder="Enter 10 digit mobile number"
+          value={formData.mobile}
+          onChange={handleMobileChange}
+        />
+        <Phone style={styles.mobileInputIcon} size={isMobile ? 20 : 16} />
+      </div>
+    </div>
+  </div>
+
+
 
             {searchPerformed && (
               <div style={styles.searchResults}>
                 <div style={styles.label}>
                   {searchResults.length > 0 ? 'Found Patients:' : 'No patients found with this number'}
                 </div>
+                
                 {searchResults.map((patient) => (
                   <div key={patient.patient_id} style={{ marginBottom: '12px' }}>
                     <div
@@ -492,6 +511,7 @@ const AddPatient = ({ isOpen, onClose, docName, docDept, docId }) => {
                     </div>
                   </div>
                 ))}
+
               </div>
             )}
           </div>
