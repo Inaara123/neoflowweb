@@ -123,7 +123,8 @@ mobileNumberContainer: {
     position: 'relative',
     width: '100%',
     marginTop: '4px',
-    boxSizing: 'border-box', // Add this
+    boxSizing: 'border-box', // Add this new
+
   },
   searchResults: {
     display: 'flex',
