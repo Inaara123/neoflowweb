@@ -199,7 +199,7 @@ const DoctorCard = ({ doctor }) => {
     setShowAddPatient(false);
   };
   const currentPatientName = currentPatients[doctor.doctor_id] || 'No Patients';
-  console.log("the current patient Name is : ", currentPatientName)
+  console.log("the current patient Name is : ", doctor)
 
   return (
     <div className="doctorCard" style={styles.doctorCard}>
