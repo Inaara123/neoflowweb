@@ -6,6 +6,7 @@ import { supabase } from '../supabaseClient';
 import { useQueue } from '../QueueContext';
 import { useSubscription } from '../SubscriptionContext';
 import AddressAutocomplete from './AddressAutocomplete';
+import './AddPatient.css'
 import { Search, User, Phone, MapPin, Calendar } from 'lucide-react';
 
 const styles = {

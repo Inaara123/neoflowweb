@@ -1,0 +1,198 @@
+/* AddPatient.css - Mobile Styles */
+@media screen and (max-width: 768px) {
+    .popup {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      transform: none;
+      width: 100%;
+      height: 100%;
+      max-width: 100%;
+      max-height: 100%;
+      padding: 16px;
+      border-radius: 0;
+      display: flex;
+      flex-direction: column;
+      background-color: #fff;
+      overflow-y: auto;
+    }
+  
+    .header {
+      position: sticky;
+      top: 0;
+      background-color: #fff;
+      padding: 16px 0;
+      margin: -16px -16px 16px -16px;
+      border-bottom: 1px solid #e2e8f0;
+      z-index: 2;
+    }
+  
+    .title {
+      font-size: 18px;
+      padding-left: 16px;
+    }
+  
+    .closeButton {
+      padding: 8px 16px;
+      font-size: 24px;
+    }
+  
+    .content {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      overflow-y: auto;
+      padding: 0;
+    }
+  
+    .leftPanel,
+    .rightPanel {
+      width: 100%;
+      padding: 0;
+      border: none;
+    }
+  
+    .rightPanel {
+      border-left: none;
+      padding-left: 0;
+    }
+  
+    .form {
+      gap: 20px;
+    }
+  
+    .inputGroup {
+      margin-bottom: 4px;
+    }
+  
+    .label {
+      font-size: 15px;
+      margin-bottom: 6px;
+    }
+  
+    .input,
+    .select {
+      padding: 12px;
+      font-size: 16px;
+      height: 48px;
+      -webkit-appearance: none;
+      appearance: none;
+      border: 1px solid #e2e8f0;
+      background-color: #fff;
+    }
+  
+    /* Make select arrows more tappable */
+    .select {
+      background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%234a5568' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 40px;
+    }
+  
+    .searchResults {
+      margin-top: 20px;
+    }
+  
+    .patientCard,
+    .patientCardSelected {
+      padding: 16px;
+      margin-bottom: 12px;
+      border-radius: 12px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+  
+    .patientCard:active,
+    .patientCardSelected:active {
+      background-color: #f7fafc;
+    }
+  
+    .actionButton {
+      width: 100%;
+      margin-top: 12px;
+      padding: 12px;
+      font-size: 15px;
+      border-radius: 8px;
+    }
+  
+    .submitButton {
+      position: sticky;
+      bottom: 16px;
+      margin: 24px -16px -16px -16px;
+      width: calc(100% + 32px);
+      padding: 16px;
+      font-size: 16px;
+      border-radius: 0;
+      box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+  
+    /* Enhanced touch targets for better mobile interaction */
+    input[type="radio"],
+    input[type="checkbox"] {
+      width: 24px;
+      height: 24px;
+    }
+  
+    /* Improved scrolling experience */
+    .content::-webkit-scrollbar {
+      width: 8px;
+    }
+  
+    .content::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+  
+    .content::-webkit-scrollbar-thumb {
+      background: #888;
+      border-radius: 4px;
+    }
+  
+    /* Add loading states for better UX */
+    .submitButton:disabled {
+      opacity: 0.7;
+      background-color: #718096;
+    }
+  
+    /* Add pull-to-refresh visual indicator */
+    .content {
+      -webkit-overflow-scrolling: touch;
+      scroll-behavior: smooth;
+    }
+  
+    /* Enhance form validation visual feedback */
+    .input:invalid,
+    .select:invalid {
+      border-color: #fc8181;
+    }
+  
+    .input:focus,
+    .select:focus {
+      border-color: #4299e1;
+      box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+    }
+  
+    /* Better touch feedback */
+    .patientCard:active,
+    .patientCardSelected:active,
+    .actionButton:active,
+    .submitButton:active {
+      transform: scale(0.98);
+    }
+  
+    /* Prevent iOS zoom on input focus */
+    @supports (-webkit-touch-callout: none) {
+      .input,
+      .select {
+        font-size: 16px;
+      }
+    }
+  
+    /* Add safe area padding for notched devices */
+    .popup {
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+      padding-left: env(safe-area-inset-left);
+      padding-right: env(safe-area-inset-right);
+    }
+  }
