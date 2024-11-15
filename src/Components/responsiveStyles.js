@@ -82,7 +82,7 @@ mobileNumberContainer: {
     backgroundColor: '#f7fafc',
     padding: '16px',
     borderRadius: '8px',
-    marginTop: isMobile ? '80px' : '60px',
+    marginTop: isMobile ? '100px' : '60px',
     border: '1px solid #e2e8f0',
     marginLeft: '-20px',
     boxSizing: 'border-box', // Add this to include padding in width calculation
