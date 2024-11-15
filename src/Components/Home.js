@@ -7,6 +7,8 @@ import Shuffle from './Shuffle';
 import SettingsList from './SettingsList'
 import { useDoctor } from '../DoctorContext';
 import './Home.css';
+import PatientAppointmentInfo from './PatientAppointmentInfo';
+
 
 const Home = () => {
   const { doctors } = useDoctor();
@@ -113,6 +115,12 @@ const Home = () => {
             <Shuffle />
           </div>
         );
+        case 'hospitalData': // Add this case
+        return (
+          <div>
+            <PatientAppointmentInfo />
+          </div>
+        );
       case 'settings':
         return (
           <div>
@@ -150,6 +158,16 @@ const Home = () => {
             Shuffle
           </span>
           <span
+  onClick={() => setActiveTab('hospitalData')} // Ensure this matches
+  style={{
+    ...styles.link,
+    ...(activeTab === 'hospitalData' ? styles.activeLink : {}),
+  }}
+  className={`link ${activeTab === 'hospitalData' ? 'activeLink' : ''}`}
+>
+  Patient Records
+</span>
+          <span
             onClick={() => setActiveTab('settings')}
             style={{
               ...styles.link,
@@ -159,6 +177,7 @@ const Home = () => {
           >
             Settings
           </span>
+          
         </nav>
         <button style={styles.signout} className="signout" onClick={handleSignOut}>Sign Out</button>
       </div>
