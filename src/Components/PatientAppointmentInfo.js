@@ -25,7 +25,7 @@ const PatientAppointmentInfo = () => {
   };
   const fetchDoctors = async () => {
     try {
-      const { data, error } = await supabase.from('doctors').select('doctor_id,name').eq('hospital_id', '4rGAVPwMavcn6ZXQJSqynPoJKyE3');
+      const { data, error } = await supabase.from('doctors').select('doctor_id,name').eq('hospital_id',auth.currentUser.uid);
       if (error) {
         console.error('Error fetching doctors:', error);
       } else {
