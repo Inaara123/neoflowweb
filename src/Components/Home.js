@@ -6,6 +6,8 @@ import DoctorList from './DoctorList';
 import Shuffle from './Shuffle';
 import SettingsList from './SettingsList'
 import { useDoctor } from '../DoctorContext';
+import PatientAppointmentInfo from './PatientAppointmentInfo';
+
 import './Home.css';
 
 const Home = () => {
@@ -113,6 +115,12 @@ const Home = () => {
             <Shuffle />
           </div>
         );
+        case 'hospitalData': // Add this case
+        return (
+          <div>
+            <PatientAppointmentInfo />
+          </div>
+        );
       case 'settings':
         return (
           <div>
@@ -149,6 +157,16 @@ const Home = () => {
           >
             Shuffle
           </span>
+          <span
+  onClick={() => setActiveTab('hospitalData')} // Ensure this matches
+  style={{
+    ...styles.link,
+    ...(activeTab === 'hospitalData' ? styles.activeLink : {}),
+  }}
+  className={`link ${activeTab === 'hospitalData' ? 'activeLink' : ''}`}
+>
+  Patient Records
+</span>
           <span
             onClick={() => setActiveTab('settings')}
             style={{

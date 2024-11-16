@@ -1,0 +1,183 @@
+/* src/components/PatientAppointmentInfo.css */
+.filter-container {
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+    margin: 40px 0;
+    flex-wrap: wrap; 
+  }
+  
+  .filter-select {
+    padding: 10px;
+    border: 1px solid #d1d1d1;
+    border-radius: 25px;
+    background-color: #f9f9f9;
+    color: rgb(56, 101, 173);
+    font-size: 16px;
+    transition: box-shadow 0.3s, border-color 0.3s;
+    cursor: pointer;
+    margin-right: 10px; 
+    margin-bottom: 20px;
+  }
+  
+  .filter-select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.2);
+  }
+  
+  .filter-select:hover {
+    background-color: #ecf0f1;
+  }
+  
+  .filter-select option {
+    padding: 10px;
+  }
+.patient-info-container {
+    margin: 20px auto;
+    max-width: 1200px;
+    padding: 20px;
+    background-color: rgb(44, 79, 137);
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  h1 {
+    text-align: center;
+    color: rgb(44, 79, 137); /* Dark gray-blue for the heading */
+  }
+  
+  .search-bar {
+    display: block;
+    margin: 20px auto;
+    padding: 10px 15px;
+    width: 80%;
+    max-width: 600px;
+    border: 1px solid #d1d1d1;
+    border-radius: 25px;
+    font-size: 16px;
+    background-color: #f9f9f9;
+    color: rgb(56, 101, 173);
+    transition: box-shadow 0.3s, border-color 0.3s;
+  }
+  
+  .search-bar:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.2);
+  }
+  
+  .patient-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 16px;
+    text-align: left;
+  }
+  
+  .patient-table th {
+    padding: 12px 15px;
+    background-color: rgb(56, 101, 173);
+    color: #ffffff; /* White text for table header */
+  }
+  
+  .patient-table td {
+    padding: 12px 15px;
+    color:rgb(44, 79, 137);/* Dark gray-blue text for table data */
+  }
+  
+  .patient-table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  
+  .patient-table tbody tr:nth-child(odd) {
+    background-color: #ecf0f1;
+  }
+  
+  .patient-table tbody tr:hover {
+    background-color: #d5dfe8;
+    color: #000000; /* Dark text for hover state */
+  }
+  
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0;
+  }
+  
+  .pagination button {
+    background-color: rgb(56, 101, 173);
+    color: #ffffff; /* White text for pagination buttons */
+    border: none;
+    padding: 8px 16px;
+    margin: 0 5px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  h1 {
+    text-align: center;
+    color: #ffffff; /* Change text color to white for better contrast */
+    font-size: 24px; /* Increase font size to make it stand out */
+    font-weight: bold; /* Add weight for emphasis */
+    margin-bottom: 20px; /* Add space below the header */
+    padding-top: 10px; /* Add space above the header */
+}
+  .pagination button:hover {
+    background-color:rgb(44, 79, 137);
+  }
+  .filters-container {
+    display: flex;
+    justify-content: center; /* Center-align filters horizontally */
+    gap: 50px;
+    flex-wrap: wrap; /* Ensure responsiveness */
+}
+  .pagination button:disabled {
+    background-color: #bdc3c7;
+    cursor: not-allowed;
+    color: #ffffff; /* White text for disabled button */
+  }
+  
+  .pagination span {
+    margin: 0 10px;
+    font-size: 16px;
+    color: #ffffff; /* Darker gray-blue for pagination text */
+  }
+  
+  .date-range-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin: 0 auto;
+    justify-content: center; 
+  }
+  
+  .date-input {
+    padding: 8px;
+    border: 1px solid #d1d1d1;
+    border-radius: 25px;
+    background-color: #f9f9f9;
+    color: rgb(56, 101, 173);
+    font-size: 16px;
+    transition: box-shadow 0.3s, border-color 0.3s;
+  }
+  
+  .date-input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.2);
+  }
+  .date-label-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .date-label {
+    font-size: 16px;
+    color: #ffffff;
+    margin-bottom: 5px;
+    font-weight: bold;
+    
+  }
