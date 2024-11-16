@@ -1,11 +1,11 @@
-// DoctorList.js
 import React, { useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { useQueue } from '../QueueContext';
 import AddPatient from './AddPatient';
 import { ref, update } from 'firebase/database';
 import { database } from '../firebase';
-import './DoctorList.css'
-import { auth } from '../firebase'
+import { auth } from '../firebase';
+import './DoctorList.css';
 
 const styles = {
   doctorList: {
@@ -123,29 +123,41 @@ const styles = {
   addPatientButtonHover: {
     backgroundColor: '#0000CD',
   },
+  patientLink: {
+    color: '#B0B0B0',
+    fontSize: '12px',
+    textDecoration: 'none',
+    marginTop: '4px',
+    transition: 'color 0.3s ease',
+  },
+  patientLinkHover: {
+    color: '#FFFFFF',
+  }
 };
 
 const getCurrentPatients = (queueData) => {
   const currentPatients = {};
   
   if (queueData && Array.isArray(queueData)) {
+    console.log("this is inside doctorlist  the queueu is : ",queueData)
     queueData.forEach(patient => {
       if (patient.waitno === 0) {
-        currentPatients[patient.docid] = patient.name;
+        currentPatients[patient.docid] = {
+          name: patient.name,
+          appointmentId: patient.appointment_id
+        };
       }
     });
   }
   
   return currentPatients;
-};
+}; 
 
 function updateQueue(currentList, doctorName) {
-  // Step 1: Remove the patient with waitno 0 for the specified doctor
   const filteredList = currentList.filter(
     patient => !(patient.docname === doctorName && patient.waitno === 0)
   );
 
-  // Step 2: Update sno and waitno of the remaining patients
   let newSno = 1;
   const updatedList = filteredList.map(patient => {
     if (patient.docname === doctorName) {
@@ -159,22 +171,17 @@ function updateQueue(currentList, doctorName) {
 
 function transformData(data) {
   return data.reduce((acc, item, index) => {
-    // Create a new object without the 'sno' property
     const { sno, ...rest } = item;
-    
-    // Use index + 1 as the key, and spread the rest of the properties
     acc[index + 1] = {
       ...rest,
-      sno: (index + 1).toString() // Ensure sno is a string and matches the new key
+      sno: (index + 1).toString()
     };
-    
     return acc;
   }, {});
 }
 
 const onPlusClick = async (currentList, doctorName) => {
   const updatedRemovedList = updateQueue(currentList, doctorName);
-  console.log("The updated list is:", updatedRemovedList);
   try {
     await update(ref(database, 'users/' + auth.currentUser.uid), { realtime: JSON.stringify(transformData(updatedRemovedList))})
   } catch {
@@ -184,10 +191,10 @@ const onPlusClick = async (currentList, doctorName) => {
 };
 
 const DoctorCard = ({ doctor }) => {
-  console.log("this is inside doctor : ", doctor)
   const { data, loading, error } = useQueue();
   const [isAddButtonHovered, setIsAddButtonHovered] = useState(false);
   const [isAddPatientButtonHovered, setIsAddPatientButtonHovered] = useState(false);
+  const [isPatientLinkHovered, setIsPatientLinkHovered] = useState(false);
   const [showAddPatient, setShowAddPatient] = useState(false);
   const currentPatients = useMemo(() => getCurrentPatients(data), [data]);
 
@@ -198,8 +205,9 @@ const DoctorCard = ({ doctor }) => {
   const handleCloseAddPatient = () => {
     setShowAddPatient(false);
   };
-  const currentPatientName = currentPatients[doctor.doctor_id] || 'No Patients';
-  console.log("the current patient Name is : ", doctor)
+
+  const currentPatient = currentPatients[doctor.doctor_id] || { name: 'No Patients', appointmentId: null };
+  const currentPatientName = currentPatient.name;
 
   return (
     <div className="doctorCard" style={styles.doctorCard}>
@@ -222,6 +230,17 @@ const DoctorCard = ({ doctor }) => {
                style={currentPatients[doctor.doctor_id] ? styles.currentPatient : styles.noPatients}>
               {currentPatientName}
             </p>
+            <Link
+              to={`/patient-details/${doctor.doctor_id}`}
+              style={{
+                ...styles.patientLink,
+                ...(isPatientLinkHovered ? styles.patientLinkHover : {})
+              }}
+              onMouseEnter={() => setIsPatientLinkHovered(true)}
+              onMouseLeave={() => setIsPatientLinkHovered(false)}
+            >
+              View Patient Details
+            </Link>
           </div>
           <button 
             className="addButton"

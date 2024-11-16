@@ -22,48 +22,70 @@ export const useWindowSize = () => {
 };
 
 export const getResponsiveStyles = (isMobile) => ({
-  popup: {
-    position: 'fixed',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    backgroundColor: 'white',
-    padding: isMobile ? '16px' : '24px',
-    borderRadius: '12px',
-    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
-    zIndex: 1000,
-    width: isMobile ? '95%' : '90%',
-    maxWidth: '1200px',
-    maxHeight: isMobile ? '95vh' : '90vh',
-    display: 'flex',
-    flexDirection: 'column',
-    overflowY: 'auto'
-  },
-  header: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: isMobile ? '16px' : '20px',
-  },
-  title: {
-    fontSize: isMobile ? '18px' : '20px',
-    fontWeight: '600',
-    color: '#2d3748',
-  },
-  closeButton: {
-    background: 'none',
-    border: 'none',
-    fontSize: '24px',
-    cursor: 'pointer',
-    color: '#4a5568',
-  },
-  content: {
-    display: 'grid',
-    gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
-    gap: isMobile ? '16px' : '24px',
-    overflowY: 'auto',
-    padding: '4px',
-  },
+    popup: {
+        position: 'fixed',
+        top: '10%',  // Changed from 20% to give more space
+        left: '50%',
+        transform: 'translateX(-50%)',
+        backgroundColor: 'white',
+        padding: isMobile ? '16px' : '24px',
+        borderRadius: '12px',
+        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
+        zIndex: 1000,
+        width: isMobile ? '95%' : '90%',
+        maxWidth: '1200px',
+        maxHeight: '85vh',  // Increased for more content space
+        display: 'flex',
+        flexDirection: 'column',
+        overflowY: 'auto'
+    },
+      overlay: {
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        zIndex: 999,
+      },
+      header: {
+        position: 'sticky',
+        top: 0,
+        backgroundColor: 'white',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: '16px',
+        borderBottom: '1px solid #e2e8f0',
+        zIndex: 1,
+      },
+      title: {
+        fontSize: isMobile ? '18px' : '20px',
+        fontWeight: '600',
+        color: '#2d3748',
+        margin: 0,
+      },
+      closeButton: {
+        background: 'none',
+        border: 'none',
+        cursor: 'pointer',
+        padding: '8px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: '#4a5568',
+        position: 'absolute',
+        right: '16px',
+        top: '50%',
+        transform: 'translateY(-50%)',
+      },
+      content: {
+        display: 'grid',
+        gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+        gap: '24px',
+        padding: '16px',
+        overflowY: 'auto',
+      },
   leftPanel: {
     display: 'flex',
     flexDirection: 'column',
@@ -75,14 +97,15 @@ export const getResponsiveStyles = (isMobile) => ({
     borderLeft: isMobile ? 'none' : '1px solid #e2e8f0',
     paddingLeft: isMobile ? '0' : '24px',
     marginTop: isMobile ? '16px' : '0',
-  },
+    paddingBottom: '40px'  // Added more padding at bottom
+},
 // Mobile number specific styles
 mobileNumberContainer: {
     width: 'calc(100% + 40px)', // Adjust this to account for the negative margin
     backgroundColor: '#f7fafc',
     padding: '16px',
     borderRadius: '8px',
-    marginTop: isMobile ? '100px' : '60px',
+    marginTop: isMobile ? '60px' : '10px',
     border: '1px solid #e2e8f0',
     marginLeft: '-20px',
     boxSizing: 'border-box', // Add this to include padding in width calculation
@@ -151,7 +174,8 @@ mobileNumberContainer: {
     display: 'flex',
     flexDirection: 'column',
     gap: isMobile ? '12px' : '16px',
-  },
+    paddingBottom: '24px'  // Added padding to form
+},
   inputGroup: {
     display: 'flex',
     flexDirection: 'column',
@@ -189,10 +213,11 @@ mobileNumberContainer: {
     cursor: 'pointer',
     fontSize: isMobile ? '16px' : '14px',
     fontWeight: '500',
-    marginTop: isMobile ? '20px' : '16px',
+    marginTop: '24px',  // Increased top margin
     width: '100%',
     '-webkit-tap-highlight-color': 'transparent',
-  },
+    position: 'relative'  // Changed from sticky to relative
+},
   overlay: {
     position: 'fixed',
     top: 0,
