@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
 import './PatientAppointmentInfo.css'; // Import the CSS file
+import { auth } from '../firebase';
 
 const PatientAppointmentInfo = () => {
   const [patientsData, setPatientsData] = useState([]);
@@ -10,7 +11,7 @@ const PatientAppointmentInfo = () => {
   const [searchText, setSearchText] = useState('');
   const rowsPerPage = 50;
   const [selectedDoctor, setSelectedDoctor] = useState(null);
-  const [timeRange, setTimeRange] = useState('1_day');
+  const [timeRange, setTimeRange] = useState('single_day');
   const [customStartDate, setCustomStartDate] = useState('');
   const [customEndDate, setCustomEndDate] = useState('');
   const dateOptions = {
@@ -40,7 +41,7 @@ const PatientAppointmentInfo = () => {
     try {
       // Make a call to the Supabase RPC function
       const { data, error } = await supabase.rpc('get_patient_appointment_info', {
-        p_hospital_id: '0azxuXHZXHer3JkyRiYDYH9w3vw2',
+        p_hospital_id: auth.currentUser.uid,
         p_doctor_id: selectedDoctor ? selectedDoctor.toString() : null,
         p_gender: null,
         p_min_age: null,
