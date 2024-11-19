@@ -157,6 +157,7 @@ const PatientAppointmentInfo = () => {
                 <th>Contact Number</th>
                 <th>Gender</th>
                 <th>Age</th>
+                <th>Doctor</th>
                 <th>Appointment Time</th>
                 <th>Appointment Type</th>
 
@@ -172,7 +173,7 @@ const PatientAppointmentInfo = () => {
                     <td>{patient.contact_number}</td>
                     <td>{patient.gender}</td>
                     <td>{patient.age}</td>
-                    {console.log(patient.appointment_time)}
+                    <td>{patient.name}</td>
                     <td>{new Date(patient.appointment_time).toLocaleString("en-GB",dateOptions)}</td>
                     <td>{patient.appointment_type}</td>
                   </tr>

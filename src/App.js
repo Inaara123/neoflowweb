@@ -6,6 +6,7 @@ import Login from './Components/Login';
 import Home from './Components/Home';
 import TvSettings from './Components/TvSettings';
 import CollectDetails from './Components/CollectDetails';
+import PatientDetails from './Components/PatientDetails';
 import SubscriptionPage from './Components/SubscriptionPage';
 import { QueueProvider } from './QueueContext';
 import { DoctorProvider } from './DoctorContext';
@@ -123,6 +124,13 @@ function AppContent() {
         </ProtectedRoute>
       }
     />
+          <Route
+          path="/patient-details/:doctorId"  element={
+          <ProtectedRoute user={user} userStatus={userStatus}>
+            <PatientDetails />
+          </ProtectedRoute>
+        }
+      />
 
     </Routes>
   );

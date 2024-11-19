@@ -6,6 +6,8 @@ import DoctorList from './DoctorList';
 import Shuffle from './Shuffle';
 import SettingsList from './SettingsList'
 import { useDoctor } from '../DoctorContext';
+import PatientAppointmentInfo from './PatientAppointmentInfo';
+
 import './Home.css';
 import PatientAppointmentInfo from './PatientAppointmentInfo';
 
