@@ -206,11 +206,16 @@ const AddPatient = ({ isOpen, onClose, docName, docDept, docId }) => {
   };
 
   const handleSubmit = async (e) => {
+    console.log('Handle Submit')
     e.preventDefault();
-    if (formData.name.trim() === '') {
-      alert('Patient Name is required');
+    if (formData.mobile.trim() === '') {
+      alert('Mobile number is required');
       return;
     }
+    else if (formData.name.trim() === '') {
+      alert('Patient Name is required');
+      return;
+    }    
 
     try {
       const now = new Date();

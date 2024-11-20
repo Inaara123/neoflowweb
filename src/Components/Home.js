@@ -10,6 +10,7 @@ import PatientAppointmentInfo from './PatientAppointmentInfo';
 
 import './Home.css';
 
+
 const Home = () => {
   const { doctors } = useDoctor();
   console.log("the doctors list inside the context is : ", doctors)
@@ -177,6 +178,7 @@ const Home = () => {
           >
             Settings
           </span>
+          
         </nav>
         <button style={styles.signout} className="signout" onClick={handleSignOut}>Sign Out</button>
       </div>
