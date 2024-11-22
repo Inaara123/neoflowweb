@@ -195,10 +195,18 @@ const AddPatient = ({ isOpen, onClose, docName, docDept, docId }) => {
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    let { name:targetField, value } = e.target;
+    console.log("Handle change event:", e.target,searchResults);
+    if(targetField === "name"){      
+      const exists = searchResults.some(item => item.name.trim() == value.trim());
+      if(exists) {
+        value = "";
+        alert("Patient Name already exist");                
+      }
+    }
     setFormData(prevData => {
-      const updatedData = { ...prevData, [name]: value };
-      if (name === 'consultationType' && value === 'follow-up') {
+      const updatedData = { ...prevData, [targetField]: value };
+      if (targetField === 'consultationType' && value === 'follow-up') {
         updatedData.reasonForVisit = 'Follow-Up';
       }
       return updatedData;
@@ -246,9 +254,35 @@ const AddPatient = ({ isOpen, onClose, docName, docDept, docId }) => {
           .select()
           .single();
 
-        if (patientError) throw patientError;
+        if (patientError) {
+          console.log('partyn',patientError);
+          throw patientError;
+        }
         currentPatientId = newPatient.patient_id;
+        console.log('New Patient ID',currentPatientId);
+        
+        const { data: update_data, error: update_error } = await supabase
+          .rpc('update_main_area', {
+            p_patient_id: currentPatientId, // Matches the function parameter name
+            p_hospital_id: auth.currentUser.uid
+          });
+
+        if (update_error) {
+          console.error('Error calling update_main_area:', error);
+        } 
+        else {
+          console.log('Function result:', update_data); // Logs the result of the function
+          if (update_data && update_data.length > 0) {
+            console.log('Returned patient_id:', update_data[0].returned_patient_id); // Access the first element of the array
+          } 
+          else {
+            console.log('No data returned from the function.');
+          }
+        }
+        
       } else {
+       
+
         const { error: updateError } = await supabase
           .from('patients')
           .update({
