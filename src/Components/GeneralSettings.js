@@ -1,8 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { useMedia } from '../MediaContext';
+import { SketchPicker } from 'react-color';
 import { ref, update, get, set } from 'firebase/database';
 import { database, auth } from '../firebase';
+import { Toaster, toast } from 'react-hot-toast';
+import UploadGuidance from './UploadGuidance';
 
 const GeneralSettings = () => {
   const [patientsPerPage, setPatientsPerPage] = useState(10);
@@ -93,6 +96,17 @@ const GeneralSettings = () => {
       gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
       gap: '20px',
       marginTop: '20px',
+    },
+    colorPickerPopover: {
+      position: 'absolute',
+      zIndex: 1000,
+    },
+    colorPickerOverlay: {
+      position: 'fixed',
+      top: '0px',
+      right: '0px',
+      bottom: '0px',
+      left: '0px',
     },
     mediaItem: {
       width: '100%',
@@ -309,55 +323,56 @@ const GeneralSettings = () => {
         font_color: fontColor,
         font_family: fontFamily
       });
-      console.log('Successfully updated clinic settings');
+      toast.success('Settings updated successfully!');
     } catch (error) {
-      console.error('Error updating clinic settings:', error);
+      toast.error('Error updating settings: ' + error.message);
     }
   };
 
   const handlePhotoUpload = async (event) => {
     try {
+      setLoading(true);
       const files = Array.from(event.target.files);
       
-      if (photoCount + files.length > 15) {
-        alert('You can only upload a maximum of 15 photos');
+      // Better validation with specific error messages
+      const validationError = validateFiles(files, photoCount);
+      if (validationError) {
+        toast.error(validationError);
         return;
       }
-
-      for (const file of files) {
-        if (!file.type.startsWith('image/')) {
-          alert('Please upload only image files');
-          return;
-        }
-
-        if (file.size > 1024 * 1024) {
-          alert('Each file must be less than 1MB');
-          return;
-        }
-      }
-
-      setLoading(true);
   
-      for (const file of files) {
+      // Upload all files concurrently with progress tracking
+      const uploadPromises = files.map(file => {
         const fileExt = file.name.split('.').pop();
-        const fileName = `${Math.random()}.${fileExt}`;
+        const fileName = `${Date.now()}-${Math.random()}.${fileExt}`;
         const filePath = `${auth.currentUser.uid}/${fileName}`;
-  
-        const { error: uploadError } = await supabase.storage
+        
+        return supabase.storage
           .from('media_bucket')
           .upload(filePath, file, {
             cacheControl: '3600',
             upsert: false,
             contentType: file.type
           });
+      });
   
-        if (uploadError) throw uploadError;
+      // Wait for all uploads to complete
+      const uploadResults = await Promise.allSettled(uploadPromises);
+      
+      // Check for any failed uploads
+      const failedUploads = uploadResults.filter(result => result.status === 'rejected');
+      if (failedUploads.length > 0) {
+        throw new Error(`${failedUploads.length} files failed to upload`);
       }
   
-      const { data: newMediaFiles } = await supabase.storage
+      // Fetch updated file list only after all uploads complete
+      const { data: newMediaFiles, error: listError } = await supabase.storage
         .from('media_bucket')
         .list(`${auth.currentUser.uid}`);
   
+      if (listError) throw listError;
+  
+      // Get public URLs for all files
       const newUrls = await Promise.all(
         newMediaFiles.map(async (file) => {
           const { data: { publicUrl } } = supabase.storage
@@ -372,46 +387,177 @@ const GeneralSettings = () => {
         })
       );
   
-      setMediaFiles(newUrls);
-      
+      // Update media order in Firebase
       await update(ref(database, `users/${auth.currentUser.uid}/mediaOrder`), {
         urls: newUrls.map(file => file.url)
       });
   
+      setMediaFiles(newUrls);
+      setPhotoCount(newUrls.length);
+      toast.success('Images uploaded successfully');
+  
     } catch (error) {
       console.error('Error uploading photos:', error);
+      toast.error('Failed to upload images: ' + error.message);
     } finally {
       setLoading(false);
     }
   };
-
+  
+  // Separate validation function
+  const validateFiles = (files, currentCount) => {
+    if (currentCount + files.length > 15) {
+      return `Cannot upload ${files.length} files. Maximum limit is 15 photos (${15 - currentCount} remaining)`;
+    }
+  
+    for (const file of files) {
+      if (!file.type.startsWith('image/')) {
+        return `File "${file.name}" is not an image`;
+      }
+  
+      if (file.size > 1024 * 1024) {
+        return `File "${file.name}" exceeds 1MB limit`;
+      }
+    }
+  
+    return null;
+  };
+  
+  // Add delete confirmation
   const handleDeleteMedia = async (fileName) => {
     try {
       setLoading(true);
       
+      // Optional: Add confirmation
+      if (!window.confirm('Are you sure you want to delete this image?')) {
+        return;
+      }
+  
       const { error } = await supabase.storage
         .from('media_bucket')
         .remove([`${auth.currentUser.uid}/${fileName}`]);
   
       if (error) throw error;
   
-      await fetchMedia();
-      
+      // Update state first for better UX
       const remainingMediaFiles = mediaFiles.filter(file => file.name !== fileName);
+      setMediaFiles(remainingMediaFiles);
+      setPhotoCount(remainingMediaFiles.length);
+  
+      // Update Firebase
       const urls = remainingMediaFiles.map(file => file.url);
-      
       await update(ref(database, `users/${auth.currentUser.uid}/mediaOrder`), {
         urls: urls
       });
+  
+      toast.success('Image deleted successfully');
+  
     } catch (error) {
       console.error('Error deleting media:', error);
+      toast.error('Failed to delete image: ' + error.message);
     } finally {
       setLoading(false);
     }
   };
 
+  // const handlePhotoUpload = async (event) => {
+  //   try {
+  //     const files = Array.from(event.target.files);
+      
+  //     if (photoCount + files.length > 15) {
+  //       alert('You can only upload a maximum of 15 photos');
+  //       return;
+  //     }
+
+  //     for (const file of files) {
+  //       if (!file.type.startsWith('image/')) {
+  //         alert('Please upload only image files');
+  //         return;
+  //       }
+
+  //       if (file.size > 1024 * 1024) {
+  //         alert('Each file must be less than 1MB');
+  //         return;
+  //       }
+  //     }
+
+  //     setLoading(true);
+  
+  //     for (const file of files) {
+  //       const fileExt = file.name.split('.').pop();
+  //       const fileName = `${Math.random()}.${fileExt}`;
+  //       const filePath = `${auth.currentUser.uid}/${fileName}`;
+  
+  //       const { error: uploadError } = await supabase.storage
+  //         .from('media_bucket')
+  //         .upload(filePath, file, {
+  //           cacheControl: '3600',
+  //           upsert: false,
+  //           contentType: file.type
+  //         });
+  
+  //       if (uploadError) throw uploadError;
+  //     }
+  
+  //     const { data: newMediaFiles } = await supabase.storage
+  //       .from('media_bucket')
+  //       .list(`${auth.currentUser.uid}`);
+  
+  //     const newUrls = await Promise.all(
+  //       newMediaFiles.map(async (file) => {
+  //         const { data: { publicUrl } } = supabase.storage
+  //           .from('media_bucket')
+  //           .getPublicUrl(`${auth.currentUser.uid}/${file.name}`);
+          
+  //         return {
+  //           url: publicUrl,
+  //           type: 'image',
+  //           name: file.name
+  //         };
+  //       })
+  //     );
+  
+  //     setMediaFiles(newUrls);
+      
+  //     await update(ref(database, `users/${auth.currentUser.uid}/mediaOrder`), {
+  //       urls: newUrls.map(file => file.url)
+  //     });
+  
+  //   } catch (error) {
+  //     console.error('Error uploading photos:', error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  // const handleDeleteMedia = async (fileName) => {
+  //   try {
+  //     setLoading(true);
+      
+  //     const { error } = await supabase.storage
+  //       .from('media_bucket')
+  //       .remove([`${auth.currentUser.uid}/${fileName}`]);
+  
+  //     if (error) throw error;
+  
+  //     await fetchMedia();
+      
+  //     const remainingMediaFiles = mediaFiles.filter(file => file.name !== fileName);
+  //     const urls = remainingMediaFiles.map(file => file.url);
+      
+  //     await update(ref(database, `users/${auth.currentUser.uid}/mediaOrder`), {
+  //       urls: urls
+  //     });
+  //   } catch (error) {
+  //     console.error('Error deleting media:', error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
   return (
     <div style={styles.container}>
+      <Toaster position="top-right" /> 
       <div style={styles.section}>
         <div style={styles.inputGroup}>
           <label style={styles.label}>Number of patients per page:</label>
@@ -459,25 +605,41 @@ const GeneralSettings = () => {
           </div>
 
           <div style={styles.colorSettingsContainer}>
-            <div style={styles.inputGroup}>
-              <label style={styles.label}>Banner Color:</label>
-              <div style={styles.colorPickerContainer}>
-                <input
-                  type="text"
-                  value={bannerColor}
-                  onChange={(e) => setBannerColor(e.target.value)}
-                  style={styles.colorInput}
-                  placeholder="#FFFFFF or RGB"
-                />
-                <input
-                  type="color"
-                  value={bannerColor}
-                  onChange={(e) => setBannerColor(e.target.value)}
-                  style={{ marginLeft: '10px' }}
-                />
+          <div style={styles.inputGroup}>
+                <label style={styles.label}>Banner Color:</label>
+                <div style={styles.colorPickerContainer}>
+                  <input
+                    type="text"
+                    value={bannerColor}
+                    onChange={(e) => setBannerColor(e.target.value)}
+                    style={styles.colorInput}
+                    placeholder="#FFFFFF or RGB"
+                  />
+                  <div 
+                    style={{
+                      ...styles.colorPreview,
+                      backgroundColor: bannerColor
+                    }}
+                    onClick={() => setShowColorPicker(!showColorPicker)}
+                  />
+                  {showColorPicker && (
+                    <div style={styles.colorPickerPopover}>
+                      <div 
+                        style={styles.colorPickerOverlay}
+                        onClick={() => setShowColorPicker(false)}
+                      />
+                      <SketchPicker
+                        color={bannerColor}
+                        onChange={(color) => setBannerColor(color.hex)}
+                      />
+                    </div>
+                  )}
+                </div>
+                <span style={styles.settingLabel}>(This will be the color of your banner in TV)</span>
+                <span style={styles.settingLabel}>(Press the square color box for detailed customization)</span>
+
               </div>
-              <span style={styles.settingLabel}>(This will be the color of your banner in TV)</span>
-            </div>
+
 
             <div style={styles.defaultColors}>
               {defaultColors.map((color) => (
@@ -491,7 +653,6 @@ const GeneralSettings = () => {
                 />
               ))}
             </div>
-
             <div style={styles.inputGroup}>
               <label style={styles.label}>Font Color:</label>
               <div style={styles.colorPickerContainer}>
@@ -502,15 +663,31 @@ const GeneralSettings = () => {
                   style={styles.colorInput}
                   placeholder="#000000 or RGB"
                 />
-                <input
-                  type="color"
-                  value={fontColor}
-                  onChange={(e) => setFontColor(e.target.value)}
-                  style={{ marginLeft: '10px' }}
+                <div 
+                  style={{
+                    ...styles.colorPreview,
+                    backgroundColor: fontColor
+                  }}
+                  onClick={() => setShowFontColorPicker(!showFontColorPicker)}
                 />
+                {showFontColorPicker && (
+                  <div style={styles.colorPickerPopover}>
+                    <div 
+                      style={styles.colorPickerOverlay}
+                      onClick={() => setShowFontColorPicker(false)}
+                    />
+                    <SketchPicker
+                      color={fontColor}
+                      onChange={(color) => setFontColor(color.hex)}
+                    />
+                  </div>
+                )}
               </div>
               <span style={styles.settingLabel}>(This will be the font color displayed on your TV)</span>
+              <span style={styles.settingLabel}>(Press the square color box for detailed customization)</span>
             </div>
+
+
 
             <div style={styles.defaultColors}>
               {defaultColors.map((color) => (
@@ -572,6 +749,7 @@ const GeneralSettings = () => {
         </div>
       </div>
       <div style={styles.section}>
+        <UploadGuidance/>
         <input
           type="file"
           ref={fileInputRef}
@@ -611,421 +789,3 @@ const GeneralSettings = () => {
 
 export default GeneralSettings;
 
-
-// import React, { useState, useRef, useEffect } from 'react';
-// import { supabase } from '../supabaseClient';
-// import { useMedia } from '../MediaContext';
-// import { ref, update, get, set } from 'firebase/database';
-// import { database, auth } from '../firebase';
-
-// const GeneralSettings = () => {
-//   const [patientsPerPage, setPatientsPerPage] = useState(10);
-//   const [screenTime, setScreenTime] = useState(15);
-//   const [clinicName, setClinicName] = useState('');
-//   const { mediaFiles, setMediaFiles, loading, setLoading } = useMedia();
-//   const fileInputRef = useRef(null);
-//   const [photoCount, setPhotoCount] = useState(0);
-
-//   const styles = {
-//     container: {
-//       padding: '20px',
-//       maxWidth: '800px',
-//       margin: '0 auto',
-//     },
-//     section: {
-//       marginBottom: '30px',
-//       backgroundColor: '#f5f5f5',
-//       padding: '20px',
-//       borderRadius: '8px',
-//       boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-//     },
-//     inputGroup: {
-//       display: 'flex',
-//       alignItems: 'center',
-//       gap: '10px',
-//       marginBottom: '10px',
-//     },
-//     label: {
-//       fontWeight: 'bold',
-//       minWidth: '200px',
-//     },
-//     numberInput: {
-//       width: '80px',
-//       padding: '8px',
-//       borderRadius: '4px',
-//       border: '1px solid #ccc',
-//       textAlign: 'center',
-//     },
-//     textInput: {
-//       width: '300px',
-//       padding: '8px',
-//       borderRadius: '4px',
-//       border: '1px solid #ccc',
-//     },
-//     updateButton: {
-//       backgroundColor: '#3865ad',
-//       color: 'white',
-//       border: 'none',
-//       padding: '8px 16px',
-//       borderRadius: '4px',
-//       cursor: 'pointer',
-//       fontWeight: 'bold',
-//     },
-//     mediaButton: {
-//       backgroundColor: '#3865ad',
-//       color: 'white',
-//       border: 'none',
-//       padding: '12px 24px',
-//       borderRadius: '4px',
-//       cursor: 'pointer',
-//       fontWeight: 'bold',
-//       marginBottom: '20px',
-//     },
-//     mediaGrid: {
-//       display: 'grid',
-//       gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-//       gap: '20px',
-//       marginTop: '20px',
-//     },
-//     mediaItem: {
-//       width: '100%',
-//       height: '200px',
-//       objectFit: 'cover',
-//       borderRadius: '8px',
-//     },
-//     deleteButton: {
-//       position: 'absolute',
-//       top: '5px',
-//       right: '5px',
-//       backgroundColor: 'rgba(255, 0, 0, 0.7)',
-//       color: 'white',
-//       border: 'none',
-//       borderRadius: '50%',
-//       width: '25px',
-//       height: '25px',
-//       cursor: 'pointer',
-//       display: 'flex',
-//       alignItems: 'center',
-//       justifyContent: 'center',
-//       fontSize: '14px',
-//     },
-//     mediaItemContainer: {
-//       position: 'relative',
-//     },
-//     unit: {
-//       color: '#666',
-//       marginLeft: '5px',
-//     },
-//   };
-
-//   useEffect(() => {
-//     fetchMedia();
-//     fetchMetadata();
-//   }, []);
-
-//   const fetchMetadata = async () => {
-//     try {
-//       const metadataRef = ref(database, `users/${auth.currentUser.uid}/metaData`);
-//       const snapshot = await get(metadataRef);
-      
-//       if (!snapshot.exists()) {
-//         const defaultMetadata = {
-//           patient_number: 10,
-//           screen_time: 15,
-//           clinic_name: ""
-//         };
-        
-//         await set(metadataRef, defaultMetadata);
-//         setPatientsPerPage(defaultMetadata.patient_number);
-//         setScreenTime(defaultMetadata.screen_time);
-//         setClinicName(defaultMetadata.clinic_name);
-//       } else {
-//         const metadata = snapshot.val();
-//         setPatientsPerPage(metadata.patient_number);
-//         setScreenTime(metadata.screen_time);
-//         setClinicName(metadata.clinic_name);
-//       }
-//     } catch (error) {
-//       console.error('Error fetching metadata:', error);
-//     }
-//   };
-
-//   const fetchMedia = async () => {
-//     try {
-//       setLoading(true);
-//       const { data, error } = await supabase.storage
-//         .from('media_bucket')
-//         .list(`${auth.currentUser.uid}`);
-  
-//       if (error) throw error;
-  
-//       const urls = await Promise.all(
-//         data.map(async (file) => {
-//           const { data: { publicUrl } } = supabase.storage
-//             .from('media_bucket')
-//             .getPublicUrl(`${auth.currentUser.uid}/${file.name}`);
-          
-//           return {
-//             url: publicUrl,
-//             type: 'image',
-//             name: file.name
-//           };
-//         })
-//       );
-  
-//       const orderRef = ref(database, `users/${auth.currentUser.uid}/mediaOrder`);
-//       const orderSnapshot = await get(orderRef);
-//       const currentOrder = orderSnapshot.val()?.urls || [];
-//       setPhotoCount(currentOrder.length);
-  
-//       if (currentOrder.length > 0) {
-//         const orderedFiles = currentOrder
-//           .map(url => urls.find(f => f.url === url))
-//           .filter(Boolean);
-        
-//         const remainingFiles = urls.filter(
-//           file => !currentOrder.includes(file.url)
-//         );
-        
-//         setMediaFiles([...orderedFiles, ...remainingFiles]);
-//       } else {
-//         setMediaFiles(urls);
-//       }
-  
-//     } catch (error) {
-//       console.error('Error fetching media:', error);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   const handlePatientsUpdate = async () => {
-//     try {
-//       const metadataRef = ref(database, `users/${auth.currentUser.uid}/metaData`);
-//       await update(metadataRef, {
-//         patient_number: patientsPerPage
-//       });
-//       console.log('Successfully updated patients per page');
-//     } catch (error) {
-//       console.error('Error updating patients per page:', error);
-//     }
-//   };
-
-//   const handleScreenTimeUpdate = async () => {
-//     try {
-//       const metadataRef = ref(database, `users/${auth.currentUser.uid}/metaData`);
-//       await update(metadataRef, {
-//         screen_time: screenTime
-//       });
-//       console.log('Successfully updated screen time');
-//     } catch (error) {
-//       console.error('Error updating screen time:', error);
-//     }
-//   };
-
-//   const handleClinicNameUpdate = async () => {
-//     try {
-//       const metadataRef = ref(database, `users/${auth.currentUser.uid}/metaData`);
-//       await update(metadataRef, {
-//         clinic_name: clinicName
-//       });
-//       console.log('Successfully updated clinic name');
-//     } catch (error) {
-//       console.error('Error updating clinic name:', error);
-//     }
-//   };
-
-//   const handlePhotoUpload = async (event) => {
-//     try {
-//       const files = Array.from(event.target.files);
-      
-//       if (photoCount + files.length > 15) {
-//         alert('You can only upload a maximum of 15 photos');
-//         return;
-//       }
-
-//       for (const file of files) {
-//         if (!file.type.startsWith('image/')) {
-//           alert('Please upload only image files');
-//           return;
-//         }
-
-//         if (file.size > 1024 * 1024) {
-//           alert('Each file must be less than 1MB');
-//           return;
-//         }
-//       }
-
-//       setLoading(true);
-  
-//       for (const file of files) {
-//         const fileExt = file.name.split('.').pop();
-//         const fileName = `${Math.random()}.${fileExt}`;
-//         const filePath = `${auth.currentUser.uid}/${fileName}`;
-  
-//         const { error: uploadError } = await supabase.storage
-//           .from('media_bucket')
-//           .upload(filePath, file, {
-//             cacheControl: '3600',
-//             upsert: false,
-//             contentType: file.type
-//           });
-  
-//         if (uploadError) throw uploadError;
-//       }
-  
-//       const { data: newMediaFiles } = await supabase.storage
-//         .from('media_bucket')
-//         .list(`${auth.currentUser.uid}`);
-  
-//       const newUrls = await Promise.all(
-//         newMediaFiles.map(async (file) => {
-//           const { data: { publicUrl } } = supabase.storage
-//             .from('media_bucket')
-//             .getPublicUrl(`${auth.currentUser.uid}/${file.name}`);
-          
-//           return {
-//             url: publicUrl,
-//             type: 'image',
-//             name: file.name
-//           };
-//         })
-//       );
-  
-//       setMediaFiles(newUrls);
-      
-//       await update(ref(database, `users/${auth.currentUser.uid}/mediaOrder`), {
-//         urls: newUrls.map(file => file.url)
-//       });
-  
-//     } catch (error) {
-//       console.error('Error uploading photos:', error);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   const handleDeleteMedia = async (fileName) => {
-//     try {
-//       setLoading(true);
-      
-//       const { error } = await supabase.storage
-//         .from('media_bucket')
-//         .remove([`${auth.currentUser.uid}/${fileName}`]);
-  
-//       if (error) throw error;
-  
-//       await fetchMedia();
-      
-//       const remainingMediaFiles = mediaFiles.filter(file => file.name !== fileName);
-//       const urls = remainingMediaFiles.map(file => file.url);
-      
-//       await update(ref(database, `users/${auth.currentUser.uid}/mediaOrder`), {
-//         urls: urls
-//       });
-//     } catch (error) {
-//       console.error('Error deleting media:', error);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   return (
-//     <div style={styles.container}>
-//       <div style={styles.section}>
-//         <div style={styles.inputGroup}>
-//           <label style={styles.label}>Number of patients per page:</label>
-//           <input
-//             type="number"
-//             min="1"
-//             value={patientsPerPage}
-//             onChange={(e) => setPatientsPerPage(Math.max(1, parseInt(e.target.value) || 0))}
-//             style={styles.numberInput}
-//           />
-//           <button style={styles.updateButton} onClick={handlePatientsUpdate}>
-//             Update
-//           </button>
-//         </div>
-//       </div>
-
-//       <div style={styles.section}>
-//         <div style={styles.inputGroup}>
-//           <label style={styles.label}>Time for each screen:</label>
-//           <input
-//             type="number"
-//             min="1"
-//             value={screenTime}
-//             onChange={(e) => setScreenTime(Math.max(1, parseInt(e.target.value) || 0))}
-//             style={styles.numberInput}
-//           />
-//           <span style={styles.unit}>seconds</span>
-//           <button style={styles.updateButton} onClick={handleScreenTimeUpdate}>
-//             Update
-//           </button>
-//         </div>
-//       </div>
-
-//       <div style={styles.section}>
-//         <div style={styles.inputGroup}>
-//           <label style={styles.label}>Name of the clinic:</label>
-//           <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', flex: 1 }}>
-//             <input
-//               type="text"
-//               value={clinicName}
-//               onChange={(e) => setClinicName(e.target.value)}
-//               placeholder="Enter your clinic name"
-//               style={styles.textInput}
-//             />
-//             <span style={{ 
-//               fontSize: '12px', 
-//               color: '#666',
-//               fontStyle: 'italic'
-//             }}>
-//               This name will be displayed on the TV screen in your waiting room
-//             </span>
-//           </div>
-//           <button style={styles.updateButton} onClick={handleClinicNameUpdate}>
-//             Update
-//           </button>
-//         </div>
-//       </div>
-
-//       <div style={styles.section}>
-//         <input
-//           type="file"
-//           ref={fileInputRef}
-//           onChange={handlePhotoUpload}
-//           multiple
-//           accept="image/*"
-//           style={{ display: 'none' }}
-//         />
-//         <button 
-//           style={styles.mediaButton}
-//           onClick={() => fileInputRef.current.click()}
-//         >
-//           Add Photos {photoCount}/15
-//         </button>
-
-//         <div style={styles.mediaGrid}>
-//           {mediaFiles.map((file, index) => (
-//             <div key={index} style={styles.mediaItemContainer}>
-//               <img
-//                 src={file.url}
-//                 alt={`Uploaded media ${index + 1}`}
-//                 style={styles.mediaItem}
-//               />
-//               <button
-//                 style={styles.deleteButton}
-//                 onClick={() => handleDeleteMedia(file.name)}
-//               >
-//                 ×
-//               </button>
-//             </div>
-//           ))}
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default GeneralSettings;
