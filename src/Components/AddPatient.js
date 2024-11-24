@@ -261,25 +261,6 @@ const AddPatient = ({ isOpen, onClose, docName, docDept, docId }) => {
         currentPatientId = newPatient.patient_id;
         console.log('New Patient ID',currentPatientId);
         
-        const { data: update_data, error: update_error } = await supabase
-          .rpc('update_main_area', {
-            p_patient_id: currentPatientId, // Matches the function parameter name
-            p_hospital_id: auth.currentUser.uid
-          });
-
-        if (update_error) {
-          console.error('Error calling update_main_area:', error);
-        } 
-        else {
-          console.log('Function result:', update_data); // Logs the result of the function
-          if (update_data && update_data.length > 0) {
-            console.log('Returned patient_id:', update_data[0].returned_patient_id); // Access the first element of the array
-          } 
-          else {
-            console.log('No data returned from the function.');
-          }
-        }
-        
       } else {
        
 
@@ -312,6 +293,24 @@ const AddPatient = ({ isOpen, onClose, docName, docDept, docId }) => {
         .single();
 
       if (appointmentError) throw appointmentError;
+
+       const { data: update_data, error: update_error } = await supabase
+      .rpc('update_main_area', {
+        p_patient_id: currentPatientId, // Matches the function parameter name
+        p_hospital_id: auth.currentUser.uid
+      });
+
+    if (update_error) {
+      console.error('Error calling update_main_area:', error);
+    } 
+    else {
+      console.log('Function result:', update_data); // Logs `1` or `0`
+      if (update_data === 1) {
+        console.log('Update successful');
+      } else {
+      console.warn('No rows updated');
+    }
+    }
 
       const masterelement = {
         sno: data.length + 1,
