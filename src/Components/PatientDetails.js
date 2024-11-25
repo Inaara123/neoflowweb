@@ -4,6 +4,7 @@ import { format, differenceInMinutes } from 'date-fns';
 import { supabase } from '../supabaseClient';
 import { auth } from '../firebase';
 import { useQueue } from '../QueueContext';
+import { toast,Toaster } from 'react-hot-toast';
 import styled from 'styled-components';
 import { Calendar, Clock, MapPin, User, Users, Share2, BookOpen, ArrowRight, X } from 'lucide-react';
 
@@ -263,6 +264,7 @@ const ErrorMessage = styled.div`
   color: #ef4444;
 `;
 
+
 const PatientDetails = () => {
     const navigate = useNavigate();
     const { doctorId } = useParams();  // Now only getting doctorId from URL
@@ -282,6 +284,7 @@ const PatientDetails = () => {
         patient.waitno === 0
       );
     }, [queueData, doctorId]);
+    
   
     const fetchPatientDetails = async (currentAppointmentId) => {
       try {
@@ -362,9 +365,13 @@ const PatientDetails = () => {
           .from('appointments')
           .update({ reason_for_visit: reasonForVisit })
           .eq('appointment_id', currentPatient.appointment_id);
+          toast.success('Reason for visit updated successfully');
+
   
         if (error) throw error;
       } catch (error) {
+        toast.error('Failed to update reason for visit');
+
         console.error('Error updating reason:', error);
       }
     };
@@ -372,13 +379,20 @@ const PatientDetails = () => {
     if (loading) return <LoadingSpinner />;
     if (error) return <ErrorMessage>{error}</ErrorMessage>;
     if (!patientData) return null;
+
+
+
+
   
     const waitTime = patientData.consultation_start_time 
-      ? differenceInMinutes(
-          new Date(patientData.consultation_start_time),
-          new Date(patientData.appointment_time)
-        )
-      : 0;
+    ? differenceInMinutes(
+        new Date(patientData.consultation_start_time),
+        new Date(patientData.appointment_time)
+      )
+    : differenceInMinutes(
+        new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' })),
+        new Date(patientData.appointment_time)
+      );
   
     const formatWaitTime = (minutes) => {
       if (minutes < 60) return `${minutes} minutes`;
@@ -401,9 +415,12 @@ const PatientDetails = () => {
   
     const isNoPatient = patientData.patients.name === 'No Patient';
     const currentPatient = getCurrentPatient();
+
+
   
     return (
       <Container>
+        <Toaster/>
         <PageHeader>
           <Title>Patient Details</Title>
           <SubTitle>
@@ -448,19 +465,19 @@ const PatientDetails = () => {
   
         {!isNoPatient && (
           <>
-            <NotesSection>
-              <NotesHeader>
-                <NotesTitle>Notes</NotesTitle>
-                <Button primary onClick={updateReasonForVisit}>
-                  Update Notes
-                </Button>
-              </NotesHeader>
-              <TextArea
-                value={reasonForVisit}
-                onChange={(e) => setReasonForVisit(e.target.value)}
-                placeholder="Enter reason for visit..."
-              />
-            </NotesSection>
+        <NotesSection>
+          <NotesHeader>
+            <NotesTitle>Update Reason for Visit for accurate Analytics</NotesTitle>
+            <Button primary onClick={updateReasonForVisit}>
+              Update Reason for Visit
+            </Button>
+          </NotesHeader>
+          <TextArea
+            value={reasonForVisit}
+            onChange={(e) => setReasonForVisit(e.target.value)}
+            placeholder="Enter reason for visit..."
+          />
+        </NotesSection>
   
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
               <Button onClick={() => setIsHistoryOpen(true)}>

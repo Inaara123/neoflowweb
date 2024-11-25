@@ -305,7 +305,7 @@ const AddPatient = ({ isOpen, onClose, docName, docDept, docId }) => {
           status: 'scheduled',
           appointment_type: formData.appointmentType,
           reason_for_visit: formData.reasonForVisit || 'General Consultation',
-          consultation_start_time: istTime,
+          consultation_start_time: null,
           day_of_week: currentDayOfWeek
         }])
         .select()

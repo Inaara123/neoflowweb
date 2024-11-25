@@ -4,6 +4,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import Login from './Components/Login';
 import Home from './Components/Home';
+import DiscoverySettings from './Components/DiscoverySettings';
 import TvSettings from './Components/TvSettings';
 import CollectDetails from './Components/CollectDetails';
 import PatientDetails from './Components/PatientDetails';
@@ -14,6 +15,7 @@ import { MediaProvider } from './MediaContext';
 import { SubscriptionProvider } from './SubscriptionContext';
 import ProtectedRoute from './ProtectedRoute';
 import { supabase } from './supabaseClient';
+
 
 function AppContent() {
   const [user, setUser] = useState(null);
@@ -131,6 +133,14 @@ function AppContent() {
           </ProtectedRoute>
         }
       />
+      <Route
+  path="/discovery"
+  element={
+    <ProtectedRoute user={user} userStatus={userStatus}>
+      <DiscoverySettings />
+    </ProtectedRoute>
+  }
+/>
 
     </Routes>
   );

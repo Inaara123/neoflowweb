@@ -197,6 +197,7 @@ const DoctorCard = ({ doctor, deleteDoctor, updateDoctor }) => {
     setShowConfirmation(true);
   };
 
+
   const handleConfirmDelete = async () => {
     console.log("the hospital_id is  : ",doctor.hospital_id )
     try {
@@ -524,9 +525,14 @@ const SettingsList = () => {
   const [isAddButtonHovered, setIsAddButtonHovered] = useState(false);
   const [showAccountInfo, setShowAccountInfo] = useState(false);
   const [isAccountButtonHovered, setIsAccountButtonHovered] = useState(false);
+  const [isDiscoveryButtonHovered, setIsDiscoveryButtonHovered] = useState(false);
   const [isTvButtonHovered, setIsTvButtonHovered] = useState(false);
   const [accountDetails, setAccountDetails] = useState(null);
   const navigate = useNavigate();
+  const handleDiscoveryClick = () => {
+    navigate('/discovery');
+  };
+
   const fetchAccountDetails = async () => {
     try {
       const user = auth.currentUser;
@@ -603,6 +609,18 @@ const SettingsList = () => {
           >
             Add Doctor
           </button>
+        <button 
+          style={{
+            ...styles.addButton,
+            ...(isDiscoveryButtonHovered ? styles.addButtonHover : {})
+          }}
+          onClick={handleDiscoveryClick}
+          onMouseEnter={() => setIsDiscoveryButtonHovered(true)}
+          onMouseLeave={() => setIsDiscoveryButtonHovered(false)}
+        >
+          Discovery Settings
+        </button>
+
           <button 
                 style={{
                   ...styles.addButton,

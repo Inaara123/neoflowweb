@@ -4,6 +4,7 @@ import { useQueue } from '../QueueContext';
 import AddPatient from './AddPatient';
 import { ref, update } from 'firebase/database';
 import { database } from '../firebase';
+import {supabase} from '../supabaseClient'
 import { auth } from '../firebase';
 import './DoctorList.css';
 
@@ -135,6 +136,9 @@ const styles = {
   }
 };
 
+
+
+
 const getCurrentPatients = (queueData) => {
   const currentPatients = {};
   
@@ -153,21 +157,22 @@ const getCurrentPatients = (queueData) => {
   return currentPatients;
 }; 
 
-function updateQueue(currentList, doctorName) {
-  const filteredList = currentList.filter(
-    patient => !(patient.docname === doctorName && patient.waitno === 0)
-  );
+// function updateQueue(currentList, doctorName) {
+//   console.log("the current list in updateQueue function is : ",currentList)
+//   const filteredList = currentList.filter(
+//     patient => !(patient.docname === doctorName && patient.waitno === 0)
+//   );
 
-  let newSno = 1;
-  const updatedList = filteredList.map(patient => {
-    if (patient.docname === doctorName) {
-      return { ...patient, sno: newSno.toString(), waitno: patient.waitno - 1 };
-    }
-    return { ...patient, sno: newSno.toString() };
-  });
+//   let newSno = 1;
+//   const updatedList = filteredList.map(patient => {
+//     if (patient.docname === doctorName) {
+//       return { ...patient, sno: newSno.toString(), waitno: patient.waitno - 1 };
+//     }
+//     return { ...patient, sno: newSno.toString() };
+//   });
 
-  return updatedList;
-}
+//   return updatedList;
+// }
 
 function transformData(data) {
   return data.reduce((acc, item, index) => {
@@ -180,14 +185,81 @@ function transformData(data) {
   }, {});
 }
 
+// const onPlusClick = async (currentList, doctorName) => {
+//   const updatedRemovedList = updateQueue(currentList, doctorName);
+//   try {
+//     await update(ref(database, 'users/' + auth.currentUser.uid), { realtime: JSON.stringify(transformData(updatedRemovedList))})
+//   } catch {
+//     console.log('error found while updating + to firebase database')
+//   }
+//   return updatedRemovedList;
+// };
+function updateQueue(currentList, doctorName) {
+  // Get current patient being removed (waitno=0)
+  const currentPatient = currentList.find(
+    patient => patient.docname === doctorName && patient.waitno === 0
+  );
+  
+  // Get next patient (waitno=1)
+  const nextPatient = currentList.find(
+    patient => patient.docname === doctorName && patient.waitno === 1
+  );
+
+  // Filter and update remaining patients
+  const filteredList = currentList.filter(
+    patient => !(patient.docname === doctorName && patient.waitno === 0)
+  );
+
+  let newSno = 1;
+  const updatedList = filteredList.map(patient => {
+    if (patient.docname === doctorName) {
+      return { ...patient, sno: newSno.toString(), waitno: patient.waitno - 1 };
+    }
+    return { ...patient, sno: newSno.toString() };
+  });
+
+  return {
+    updatedList,
+    currentPatientId: currentPatient?.appointment_id,
+    nextPatientId: nextPatient?.appointment_id
+  };
+}
+
 const onPlusClick = async (currentList, doctorName) => {
-  const updatedRemovedList = updateQueue(currentList, doctorName);
+  const { updatedList, currentPatientId, nextPatientId } = updateQueue(currentList, doctorName);
+  
   try {
-    await update(ref(database, 'users/' + auth.currentUser.uid), { realtime: JSON.stringify(transformData(updatedRemovedList))})
-  } catch {
-    console.log('error found while updating + to firebase database')
+    // Get current IST time
+    const currentTime = new Date().toLocaleString('en-US', { 
+      timeZone: 'Asia/Kolkata' 
+    });
+
+    // Update Firebase queue
+    await update(ref(database, 'users/' + auth.currentUser.uid), {
+      realtime: JSON.stringify(transformData(updatedList))
+    });
+
+    // Update Supabase appointments for current patient
+    if (currentPatientId) {
+      await supabase
+        .from('appointments')
+        .update({ consultation_end_time: currentTime })
+        .eq('appointment_id', currentPatientId);
+    }
+
+    // Update Supabase appointments for next patient
+    if (nextPatientId) {
+      await supabase
+        .from('appointments')
+        .update({ consultation_start_time: currentTime })
+        .eq('appointment_id', nextPatientId);
+    }
+
+  } catch (error) {
+    console.error('Error updating queue:', error);
   }
-  return updatedRemovedList;
+
+  return updatedList;
 };
 
 const DoctorCard = ({ doctor }) => {
@@ -205,6 +277,7 @@ const DoctorCard = ({ doctor }) => {
   const handleCloseAddPatient = () => {
     setShowAddPatient(false);
   };
+
 
   const currentPatient = currentPatients[doctor.doctor_id] || { name: 'No Patients', appointmentId: null };
   const currentPatientName = currentPatient.name;
@@ -254,6 +327,8 @@ const DoctorCard = ({ doctor }) => {
           >
             +
           </button>
+
+
         </div>  
         <div className="lastsection" style={styles.lastsection}>
           <button 
