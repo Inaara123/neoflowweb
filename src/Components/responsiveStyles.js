@@ -238,4 +238,71 @@ mobileNumberContainer: {
     fontWeight: '500',
     marginTop: '8px',
   },
+  customDropdown : {
+    position: 'relative',
+    width: '100%',
+  },
+  referralSourcesContainer: {
+    position: 'absolute',
+    top: '100%',
+    left: 0,
+    right: 0,
+    backgroundColor: 'white',
+    border: '1px solid #e2e8f0',
+    borderRadius: '0.375rem',
+    zIndex: 10,
+    maxHeight: '300px',
+    overflow: 'hidden',
+    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+  },
+  referralHeader: {
+    padding: '0.5rem',
+    borderBottom: '1px solid #e2e8f0',
+    display: 'flex',
+    gap: '0.5rem',
+    alignItems: 'center',
+    backgroundColor: '#f8fafc',
+  },
+  backButton: {
+    padding: '0.25rem 0.5rem',
+    backgroundColor: 'white',
+    border: '1px solid #e2e8f0',
+    borderRadius: '0.25rem',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    fontSize: '14px',
+    color: '#4b5563',
+    ':hover': {
+      backgroundColor: '#f1f5f9',
+    },
+  },
+  searchInput: {
+    flex: 1,
+    padding: '0.375rem 0.75rem',
+    border: '1px solid #e2e8f0',
+    borderRadius: '0.25rem',
+    fontSize: '14px',
+    ':focus': {
+      outline: 'none',
+      borderColor: '#3b82f6',
+      boxShadow: '0 0 0 1px #3b82f6',
+    },
+  },
+  referralList: {
+    maxHeight: '250px',
+    overflowY: 'auto',
+  },
+  referralItem: {
+    padding: '0.5rem 1rem',
+    cursor: 'pointer',
+    fontSize: '14px',
+    color: '#4b5563',
+    ':hover': {
+      backgroundColor: '#f8fafc',
+    },
+    borderBottom: '1px solid #f1f5f9',
+    },
+  
+
 });

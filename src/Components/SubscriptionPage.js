@@ -5,13 +5,13 @@ import { auth } from '../firebase';
 
 const SubscriptionPage = ({updateUserStatus}) => {
   const userId = auth.currentUser.uid;
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const [selectedPlan, setSelectedPlan] = useState(null);
 
   const plans = [
     { 
       name: 'Essential', 
-      price: 12, 
+      price: 15, 
       description: 'Integrated Queue Management System',
       features: [
         'Use TV in clinic to drive patient satisfaction',
@@ -22,7 +22,7 @@ const SubscriptionPage = ({updateUserStatus}) => {
     },
     { 
       name: 'Advanced', 
-      price: 18, 
+      price: 20000, 
       description: 'Advanced Analytics to grow your business',
       features: [
         'Know Exactly where your patients are coming from',
@@ -34,8 +34,8 @@ const SubscriptionPage = ({updateUserStatus}) => {
     },
     { 
       name: 'Pro', 
-      price: 25000, 
-      description: 'Talk to your data',
+      price: 48000, 
+      description: 'Talk to your data (Coming Soon)',
       features: [
         'Use the Power of AI to get a detailed understanding of your Business',
         'Discover Insights just by chatting with it',
@@ -55,7 +55,13 @@ const SubscriptionPage = ({updateUserStatus}) => {
       <h1 style={styles.mainTitle}>Choose Your Subscription Plan</h1>
       <div style={styles.planContainer}>
         {plans.map((plan) => (
-          <div key={plan.name} style={styles.planCard}>
+          <div key={plan.name} style={{
+            ...styles.planCard,
+            ...(plan.name === 'Pro' ? {
+              backgroundColor: '#f5f6f7',
+              opacity: 0.75
+            } : {})
+          }}>
             <div style={styles.planHeader}>
               <h2 style={styles.planName}>{plan.name}</h2>
               <p style={styles.price}>
@@ -73,13 +79,26 @@ const SubscriptionPage = ({updateUserStatus}) => {
               ))}
             </div>
             
-            <RazorpayButton 
-              userId={userId} 
-              amount={plan.price} 
-              onSuccessfulPayment={handleSuccessfulPayment}
-              planName={plan.name}
-              style={styles.button}
-            />
+            {plan.name === 'Pro' ? (
+              <button 
+                style={{
+                  ...styles.button,
+                  backgroundColor: '#95a5a6',
+                  cursor: 'not-allowed'
+                }} 
+                disabled
+              >
+                Coming Soon
+              </button>
+            ) : (
+              <RazorpayButton 
+                userId={userId} 
+                amount={plan.price} 
+                onSuccessfulPayment={handleSuccessfulPayment}
+                planName={plan.name}
+                style={styles.button}
+              />
+            )}
           </div>
         ))}
       </div>

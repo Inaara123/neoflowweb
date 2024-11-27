@@ -4,10 +4,32 @@ import { toast } from 'react-hot-toast';
 import { supabase } from '../supabaseClient';
 import { auth } from '../firebase';
 
+const BackButton = styled.button`
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  padding: 8px 15px;
+  background-color: #3865ad;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: scale(1.05);
+    background-color: #2d5293;
+  }
+`;
 // Styled Components
 const Container = styled.div`
   padding: 20px;
+  padding-top: 60px; /* Add extra padding to account for back button */
   font-family: Arial, sans-serif;
+  position: relative;
 `;
 
 const ButtonContainer = styled.div`
@@ -163,6 +185,9 @@ const DiscoverySettings = () => {
     useEffect(() => {
       fetchDiscoverySettings();
     }, []);
+    const handleBack = () => {
+        window.history.back();
+    };
   
     const fetchDiscoverySettings = async () => {
       try {
@@ -248,6 +273,9 @@ const DiscoverySettings = () => {
 
   return (
     <Container>
+            <BackButton onClick={handleBack}>
+                ← Back
+            </BackButton>
       <ButtonContainer>
         <AddButton onClick={() => setShowAddSource(true)}>
           Add Source
