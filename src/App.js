@@ -156,7 +156,7 @@ function AppContent() {
       element={<FeedbackForm />}
     />
     <Route
-  path="/qr-code"
+  path="/review-dashboard"
   element={
     <ProtectedRoute user={user} userStatus={userStatus}>
       <ReviewDashboard />
