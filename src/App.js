@@ -8,6 +8,7 @@ import DiscoverySettings from './Components/DiscoverySettings';
 import TvSettings from './Components/TvSettings';
 import CollectDetails from './Components/CollectDetails';
 import PatientDetails from './Components/PatientDetails';
+import ReviewDashboard from './Components/ReviewDashboard';
 import SubscriptionPage from './Components/SubscriptionPage';
 import QRCode from './Components/QRCode';
 import FeedbackForm from './Components/feedbackForm'
@@ -154,6 +155,15 @@ function AppContent() {
       path="/feedback/:placeId/:hospitalId"
       element={<FeedbackForm />}
     />
+    <Route
+  path="/qr-code"
+  element={
+    <ProtectedRoute user={user} userStatus={userStatus}>
+      <ReviewDashboard />
+    </ProtectedRoute>
+  }
+/> 
+    
 
 
     </Routes>

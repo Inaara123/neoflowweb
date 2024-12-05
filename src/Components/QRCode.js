@@ -164,7 +164,9 @@ const QRCode = () => {
 
   const getNeoflowUrl = () => {
     const hospitalId = auth.currentUser?.uid;
-    return `https://neoflow.cloud/feedback/${placeId}/${hospitalId}`;
+    //return `https://neoflow.cloud/feedback/${placeId}/${hospitalId}`;
+    return `https://feedback-two-pi.vercel.app/?placeId=${placeId}&hospitalId=${hospitalId}`;
+
   };
 
   const downloadQRCode = (url, name) => {
@@ -266,16 +268,29 @@ const QRCode = () => {
               </a>
             </p>
           </div>
-          <button 
-            type="submit" 
-            style={{
-              ...styles.button,
-              ...(saving ? styles.disabledButton : {})
-            }}
-            disabled={saving}
-          >
-            {saving ? 'Saving...' : 'Generate QR Codes'}
-          </button>
+          <div style={{ display: 'flex', gap: '10px', width: '100%' }}>
+  <button 
+    type="submit" 
+    style={{
+      ...styles.button,
+      flex: 1,
+      ...(saving ? styles.disabledButton : {})
+    }}
+    disabled={saving}
+  >
+    {saving ? 'Saving...' : 'Generate QR Codes'}
+  </button>
+  <button 
+    type="button"
+    style={{
+      ...styles.button,
+      flex: 1
+    }}
+    onClick={() => navigate('/review-dashboard')}
+  >
+    View Reviews
+  </button>
+</div>
         </form>
       </div>
 
@@ -298,7 +313,7 @@ const QRCode = () => {
 
           <div style={styles.qrContainer}>
             <div style={styles.qrCard}>
-              <h2>Direct Google Review QR Code</h2>
+              <h2> Google Review QR Code</h2>
               <img 
                 src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(getGoogleReviewUrl())}`}
                 alt="Google Review QR Code"
@@ -317,7 +332,7 @@ const QRCode = () => {
             </div>
 
             <div style={styles.qrCard}>
-              <h2>Neoflow Feedback QR Code</h2>
+              <h2> Feedback QR Code</h2>
               <img 
                 src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(getNeoflowUrl())}`}
                 alt="Neoflow Feedback QR Code"
