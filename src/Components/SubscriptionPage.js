@@ -11,7 +11,7 @@ const SubscriptionPage = ({updateUserStatus}) => {
   const plans = [
     { 
       name: 'Essential', 
-      price: 15, 
+      price: 15000, 
       description: 'Integrated Queue Management System',
       features: [
         'Use TV in clinic to drive patient satisfaction',

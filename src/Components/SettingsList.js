@@ -528,6 +528,7 @@ const SettingsList = () => {
   const [isDiscoveryButtonHovered, setIsDiscoveryButtonHovered] = useState(false);
   const [isTvButtonHovered, setIsTvButtonHovered] = useState(false);
   const [accountDetails, setAccountDetails] = useState(null);
+  const [isQRButtonHovered, setIsQRButtonHovered] = useState(false);
   const navigate = useNavigate();
   const handleDiscoveryClick = () => {
     navigate('/discovery');
@@ -619,6 +620,17 @@ const SettingsList = () => {
           onMouseLeave={() => setIsDiscoveryButtonHovered(false)}
         >
           Discovery Settings
+        </button>
+        <button 
+          style={{
+            ...styles.addButton,
+            ...(isQRButtonHovered ? styles.addButtonHover : {})
+          }}
+          onClick={() => navigate('/qr-code')}
+          onMouseEnter={() => setIsQRButtonHovered(true)}
+          onMouseLeave={() => setIsQRButtonHovered(false)}
+        >
+          QR Code Settings
         </button>
 
           <button 

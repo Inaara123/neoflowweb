@@ -9,6 +9,8 @@ import TvSettings from './Components/TvSettings';
 import CollectDetails from './Components/CollectDetails';
 import PatientDetails from './Components/PatientDetails';
 import SubscriptionPage from './Components/SubscriptionPage';
+import QRCode from './Components/QRCode';
+import FeedbackForm from './Components/feedbackForm'
 import { QueueProvider } from './QueueContext';
 import { DoctorProvider } from './DoctorContext';
 import { MediaProvider } from './MediaContext';
@@ -141,6 +143,18 @@ function AppContent() {
     </ProtectedRoute>
   }
 />
+<Route
+  path="/qr-code"
+  element={
+    <ProtectedRoute user={user} userStatus={userStatus}>
+      <QRCode />
+    </ProtectedRoute>
+  }
+/>    <Route
+      path="/feedback/:placeId/:hospitalId"
+      element={<FeedbackForm />}
+    />
+
 
     </Routes>
   );
