@@ -37,12 +37,97 @@ const ConfirmationPopup = ({ isOpen, onConfirm, onCancel, message }) => {
   );
 };
 
+const ReasonModal = ({ isOpen, onSubmit, onCancel, patientName }) => {
+    const [reasonText, setReasonText] = useState('');
+
+    if (!isOpen) return null;
+
+    const handleSubmit = () => {
+        onSubmit(reasonText);
+        setReasonText('');
+    };
+
+    const handleCancel = () => {
+        setReasonText('');
+        onCancel();
+    };
+
+    return (
+        <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000
+        }}>
+            <div style={{
+                backgroundColor: 'white',
+                padding: '20px',
+                borderRadius: '5px',
+                width: '400px',
+                position: 'relative'
+            }}>
+                <button 
+                    onClick={handleCancel}
+                    style={{
+                        position: 'absolute',
+                        right: '10px',
+                        top: '10px',
+                        border: 'none',
+                        background: 'none',
+                        fontSize: '20px',
+                        cursor: 'pointer'
+                    }}
+                >
+                    ✕
+                </button>
+                <h3 style={{ marginBottom: '20px' }}>Add Reason for {patientName}</h3>
+                <textarea
+                    value={reasonText}
+                    onChange={(e) => setReasonText(e.target.value)}
+                    style={{
+                        width: '100%',
+                        minHeight: '100px',
+                        padding: '10px',
+                        marginBottom: '20px',
+                        borderRadius: '5px',
+                        border: '1px solid #ccc'
+                    }}
+                    placeholder="Enter reason here..."
+                />
+                <div style={{ textAlign: 'right' }}>
+                    <button 
+                        onClick={handleSubmit}
+                        style={{
+                            padding: '8px 16px',
+                            backgroundColor: '#3865ad',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '5px',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        Submit
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const Shuffle = () => {
     const { data, loading, error } = useQueue();
     const [items, setItems] = useState([]);
     const containerRef = useRef(null);
     const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
     const [itemToDelete, setItemToDelete] = useState(null);
+    const [isReasonModalOpen, setIsReasonModalOpen] = useState(false);
+    const [selectedPatient, setSelectedPatient] = useState(null);
 
     const processPatientList = (patientList) => {
         const doctorPatients = new Map();
@@ -107,10 +192,37 @@ const Shuffle = () => {
         return updatedArr;
     };
 
+    const handleReasonSubmit = async (reasonText) => {
+        if (!selectedPatient) return;
+    
+        // Update local state
+        const updatedItems = items.map(item => {
+            if (item.sno === selectedPatient.sno) {
+                return { ...item, reason: reasonText };
+            }
+            return item;
+        });
+        setItems(updatedItems);
+    
+        // Update Firebase
+        try {
+            await update(ref(database, 'users/' + auth.currentUser.uid), { 
+                realtime: JSON.stringify(transformData(updatedItems))
+            });
+        } catch (error) {
+            console.log('Error updating reason in firebase database', error);
+        }
+    
+        setIsReasonModalOpen(false);
+        setSelectedPatient(null);
+    };
+
     const TemplateItem = ({item, itemSelected, dragHandleProps}) => {
         const [isHovered, setIsHovered] = useState(false);
         const [isClicked, setIsClicked] = useState(false);
         const [isItemHovered, setIsItemHovered] = useState(false);
+        const [isReasonHovered, setIsReasonHovered] = useState(false);
+        const [isReasonClicked, setIsReasonClicked] = useState(false);
     
         const styles = {
             item: {
@@ -151,22 +263,51 @@ const Shuffle = () => {
             },
             deleteSection: {
                 marginLeft: '20px',
+                display: 'flex',
+                gap: '10px',
+                flexDirection: 'column',
+                alignItems: 'flex-end',
             },
-            deleteButton: {
+            buttonsContainer: {
+                display: 'flex',
+                gap: '10px',
+            },
+            button: {
                 width: '50px',
                 height: '50px',
                 border: 'none',
                 backgroundColor: 'transparent',
                 cursor: 'pointer',
                 transition: 'all 0.3s ease',
-                transform: isHovered ? 'scale(1.3)' : 'scale(1)',
                 outline: 'none',
             },
-            deleteImage: {
+            deleteButton: {
+                transform: isHovered ? 'scale(1.3)' : 'scale(1)',
+            },
+            reasonButton: {
+                transform: isReasonHovered ? 'scale(1.3)' : 'scale(1)',
+            },
+            buttonImage: {
                 width: '100%',
                 height: '100%',
                 transition: 'all 0.1s ease',
+            },
+            deleteImage: {
                 transform: isClicked ? 'scale(1.25)' : 'scale(1)',
+            },
+            reasonImage: {
+                transform: isReasonClicked ? 'scale(1.25)' : 'scale(1)',
+            },
+            reasonText: {
+                fontSize: '0.9em',
+                opacity: '0.8',
+                fontStyle: 'italic',
+                marginTop: '5px',
+                textAlign: 'right',
+                maxWidth: '200px',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
             }
         };
     
@@ -181,6 +322,13 @@ const Shuffle = () => {
             setTimeout(() => setIsClicked(false), 100);
             setItemToDelete(item);
             setIsConfirmationOpen(true);
+        };
+
+        const handleAddReasonClick = () => {
+            setIsReasonClicked(true);
+            setTimeout(() => setIsReasonClicked(false), 100);
+            setSelectedPatient(item);
+            setIsReasonModalOpen(true);
         };
     
         return (
@@ -199,15 +347,39 @@ const Shuffle = () => {
                     {getWaitStatus(item.waitno)}
                 </div>
                 <div className="delete-section" style={styles.deleteSection}>
-                    <button 
-                        className="delete-button"
-                        style={styles.deleteButton}
-                        onMouseEnter={() => setIsHovered(true)}
-                        onMouseLeave={() => setIsHovered(false)}
-                        onClick={handleDeleteClick}
-                    >
-                        <img src="/delete.png" alt="Delete" style={styles.deleteImage} />
-                    </button>
+                    <div style={styles.buttonsContainer}>
+                        <button 
+                            className="reason-button"
+                            style={{...styles.button, ...styles.reasonButton}}
+                            onMouseEnter={() => setIsReasonHovered(true)}
+                            onMouseLeave={() => setIsReasonHovered(false)}
+                            onClick={handleAddReasonClick}
+                        >
+                            <img 
+                                src="/note.png" 
+                                alt="Add Reason" 
+                                style={{...styles.buttonImage, ...styles.reasonImage}} 
+                            />
+                        </button>
+                        <button 
+                            className="delete-button"
+                            style={{...styles.button, ...styles.deleteButton}}
+                            onMouseEnter={() => setIsHovered(true)}
+                            onMouseLeave={() => setIsHovered(false)}
+                            onClick={handleDeleteClick}
+                        >
+                            <img 
+                                src="/delete.png" 
+                                alt="Delete" 
+                                style={{...styles.buttonImage, ...styles.deleteImage}} 
+                            />
+                        </button>
+                    </div>
+                    {item.reason && (
+                        <div style={styles.reasonText}>
+                            Reason: {item.reason}
+                        </div>
+                    )}
                 </div>
             </div>
         );
@@ -237,6 +409,11 @@ const Shuffle = () => {
         setItemToDelete(null);
     };
 
+    const handleCancelReason = () => {
+        setIsReasonModalOpen(false);
+        setSelectedPatient(null);
+    };
+
     const _onListChange = async(newList) => {
         const finalList = (processPatientList(newList));
         setItems(finalList)
@@ -247,7 +424,6 @@ const Shuffle = () => {
             console.log('error found while updating to firebase database', error)
         }
     };
-
     const styles = {
         container: {
             maxWidth: '300px',
@@ -296,8 +472,15 @@ const Shuffle = () => {
                 onCancel={handleCancelDelete}
                 message="Are you sure you want to delete this patient?"
             />
+            <ReasonModal
+                isOpen={isReasonModalOpen}
+                onSubmit={handleReasonSubmit}
+                onCancel={handleCancelReason}
+                patientName={selectedPatient ? capitalize(selectedPatient.name) : ''}
+            />
         </div>
     );
 };
 
 export default Shuffle;
+
