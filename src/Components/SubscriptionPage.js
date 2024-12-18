@@ -22,7 +22,7 @@ const SubscriptionPage = ({updateUserStatus}) => {
     },
     { 
       name: 'Advanced', 
-      price: 20000, 
+      price: 25000, 
       description: 'Advanced Analytics to grow your business',
       features: [
         'Know Exactly where your patients are coming from',
@@ -34,13 +34,15 @@ const SubscriptionPage = ({updateUserStatus}) => {
     },
     { 
       name: 'Pro', 
-      price: 48000, 
+      price: 55000, 
       description: 'Talk to your data (Coming Soon)',
       features: [
         'Use the Power of AI to get a detailed understanding of your Business',
         'Discover Insights just by chatting with it',
         'Aida, your personal Assistant will answer any question about your business in seconds',
-        'Simplify Decision making with Data driven insights'
+        'Automated WhatsApp Relationship Management',
+        'AI powered Custom Content Generation for Organic Marketing'
+
       ]
     },
   ];

@@ -526,6 +526,7 @@ const SettingsList = () => {
   const [showAccountInfo, setShowAccountInfo] = useState(false);
   const [isAccountButtonHovered, setIsAccountButtonHovered] = useState(false);
   const [isDiscoveryButtonHovered, setIsDiscoveryButtonHovered] = useState(false);
+  const [isBillButtonHovered,setIsBillButtonHovered] = useState(false);
   const [isTvButtonHovered, setIsTvButtonHovered] = useState(false);
   const [accountDetails, setAccountDetails] = useState(null);
   const [isQRButtonHovered, setIsQRButtonHovered] = useState(false);
@@ -533,6 +534,9 @@ const SettingsList = () => {
   const handleDiscoveryClick = () => {
     navigate('/discovery');
   };
+  const handleBillClick = () => {
+    navigate('/bill-settings')
+  }
 
   const fetchAccountDetails = async () => {
     try {
@@ -620,6 +624,17 @@ const SettingsList = () => {
           onMouseLeave={() => setIsDiscoveryButtonHovered(false)}
         >
           Discovery Settings
+        </button>
+        <button 
+          style={{
+            ...styles.addButton,
+            ...(isBillButtonHovered ? styles.addButtonHover : {})
+          }}
+          onClick={handleBillClick}
+          onMouseEnter={() => setIsBillButtonHovered(true)}
+          onMouseLeave={() => setIsBillButtonHovered(false)}
+        >
+          Bill Settings
         </button>
         <button 
           style={{

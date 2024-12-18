@@ -8,6 +8,7 @@ import DiscoverySettings from './Components/DiscoverySettings';
 import TvSettings from './Components/TvSettings';
 import CollectDetails from './Components/CollectDetails';
 import PatientDetails from './Components/PatientDetails';
+import BillSettings from './Components/BillSettings';
 import ReviewDashboard from './Components/ReviewDashboard';
 import SubscriptionPage from './Components/SubscriptionPage';
 import QRCode from './Components/QRCode';
@@ -141,6 +142,14 @@ function AppContent() {
   element={
     <ProtectedRoute user={user} userStatus={userStatus}>
       <DiscoverySettings />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/bill-settings"
+  element={
+    <ProtectedRoute user={user} userStatus={userStatus}>
+      <BillSettings />
     </ProtectedRoute>
   }
 />
