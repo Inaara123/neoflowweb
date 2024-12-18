@@ -22,7 +22,7 @@ const SubscriptionPage = ({updateUserStatus}) => {
     },
     { 
       name: 'Advanced', 
-      price: 25000, 
+      price: 25, 
       description: 'Advanced Analytics to grow your business',
       features: [
         'Know Exactly where your patients are coming from',
